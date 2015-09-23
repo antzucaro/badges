@@ -1,0 +1,3 @@
+{
+  "ConnStr": "user=xonstat password=xonstat host=localhost dbname=xonstatdb sslmode=disable"
+}
