@@ -32,7 +32,11 @@ func main() {
 		}
 
 		for _, v := range pids {
-			fmt.Println(v)
+			pd, err := pp.GetPlayerData(v)
+			if err != nil {
+				fmt.Println(err)
+			}
+			fmt.Printf("%+v\n", *pd)
 		}
 	}
 }
