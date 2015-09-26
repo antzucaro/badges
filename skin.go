@@ -1,5 +1,9 @@
 package main
 
+import (
+	"github.com/ungerik/go-cairo"
+)
+
 // RGB is an RGB value
 type RGB struct {
 	Red   float64
@@ -51,4 +55,11 @@ type SkinParams struct {
 	KillsConfig       BasicTextConfig
 	DeathsConfig      BasicTextConfig
 	PlayingTimeConfig BasicTextConfig
+}
+
+// Skin represents the look and feel of a XonStat badge
+type Skin struct {
+	Name    string
+	Params  SkinParams
+	surface *cairo.Surface
 }
