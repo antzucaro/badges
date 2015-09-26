@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/ungerik/go-cairo"
+	"math"
 )
 
 // RGB is an RGB value
@@ -62,4 +63,30 @@ type Skin struct {
 	Name    string
 	Params  SkinParams
 	surface *cairo.Surface
+}
+
+// String representation of a Skin
+func (s *Skin) String() string {
+	return s.Name
+}
+
+// ShowText shows the given text on the surface with alignment and angling.
+func (s *Skin) ShowText(text string, pos Position, align int, angle int, offsetX int, offsetY int) {
+	te := s.surface.TextExtents(text)
+
+	if align > 0 {
+		s.surface.MoveTo(float64(pos.X+offsetX)-te.Xbearing, float64(pos.Y+offsetY)-te.Ybearing)
+	} else if align < 0 {
+		s.surface.MoveTo(float64(pos.X+offsetX)-te.Xbearing-te.Width, float64(pos.Y+offsetY)-te.Ybearing)
+	} else {
+		s.surface.MoveTo(float64(pos.X+offsetX)-te.Xbearing-te.Width/2, float64(pos.Y+offsetY)-te.Ybearing)
+	}
+	s.surface.Save()
+
+	if angle > 0 {
+		s.surface.Rotate(float64(angle) * math.Pi / 180.0)
+	}
+
+	s.surface.ShowText(text)
+	s.surface.Restore()
 }
