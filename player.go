@@ -165,7 +165,7 @@ FROM
 JOIN
    players p 
       on p.player_id = agg_stats.player_id            
-LEFT OUTER JOIN
+JOIN
    player_elos pe 
       on agg_stats.game_type_cd = pe.game_type_cd 
       and pe.player_id = agg_stats.player_id            
@@ -198,7 +198,10 @@ LEFT OUTER JOIN
       pr.rank,
       pr.max_rank            
    ORDER BY
-      pe.elo desc NULLS LAST`
+      pe.elo desc NULLS LAST
+   LIMIT 3`
+
+    fmt.Println(sql)
 
 	stmt, err := pp.db.Prepare(sql)
 	if err != nil {
