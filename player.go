@@ -276,7 +276,7 @@ func (pp *PlayerProcessor) GetPlayerData(playerID int) (*PlayerData, error) {
 	pd.Deaths = totalDeaths
 	pd.Wins = totalWins
 	pd.Losses = totalLosses
-	pd.PlayingTime = time.Duration(totalAlivetime) * time.Second
+	pd.PlayingTime = time.Duration(totalAlivetime) * time.Minute
 
 	return pd, nil
 }
