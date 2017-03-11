@@ -36,9 +36,9 @@ type PlayerData struct {
 // KDRatio returns the player's Kill:Death ratio as a string
 func (pd *PlayerData) KDRatio() string {
 	if pd.Deaths > 0 {
-		return "0.000"
+		return fmt.Sprintf("%.3f", float64(pd.Kills)/float64(pd.Deaths))
 	} else {
-		return fmt.Sprintf("%.3f", pd.Kills/pd.Deaths)
+		return "0.000"
 	}
 }
 
@@ -46,7 +46,7 @@ func (pd *PlayerData) KDRatio() string {
 func (pd *PlayerData) WinPct() string {
 	totalGames := pd.Wins + pd.Losses
 	if totalGames > 0 {
-		return fmt.Sprintf("%.2f%%", pd.Wins/totalGames)
+		return fmt.Sprintf("%.2f%%", float64(pd.Wins)/float64(totalGames)*100)
 	} else {
 		return "0.00%"
 	}
@@ -201,7 +201,8 @@ LEFT OUTER JOIN
       pe.elo desc NULLS LAST
    LIMIT 3`
 
-	fmt.Println(sql)
+    // DEBUG
+	// fmt.Println(sql)
 
 	stmt, err := pp.db.Prepare(sql)
 	if err != nil {
