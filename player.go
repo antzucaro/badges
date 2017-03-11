@@ -67,6 +67,11 @@ func NewPlayerProcessor(connStr string) (*PlayerProcessor, error) {
 		return nil, err
 	}
 
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
+
 	// connection pooling
 	db.SetMaxIdleConns(5)
 
