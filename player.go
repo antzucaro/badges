@@ -134,7 +134,7 @@ func (pp *PlayerProcessor) initPlayerDataStmt() error {
    SUM(loss) losses,
    SUM(kills) kills,
    SUM(deaths) deaths,
-   Sum(alivetime) alivetime    
+   round(Sum(alivetime)/60) alivetime    
 FROM
    (SELECT
       pgs.player_id,
@@ -201,7 +201,7 @@ LEFT OUTER JOIN
       pe.elo desc NULLS LAST
    LIMIT 3`
 
-    fmt.Println(sql)
+	fmt.Println(sql)
 
 	stmt, err := pp.db.Prepare(sql)
 	if err != nil {
