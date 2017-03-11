@@ -32,6 +32,7 @@ type BasicTextConfig struct {
 	Height    int
 	Width     int
 	MaxWidth  int
+	Align     int
 }
 
 // SkinParams represents parameters given to Skin objects
@@ -89,4 +90,97 @@ func (s *Skin) ShowText(text string, pos Position, align int, angle int, offsetX
 
 	s.surface.ShowText(text)
 	s.surface.Restore()
+}
+
+// The "classic" skin theme
+var DefaultSkin = Skin{
+	Name: "classic",
+	Params: SkinParams{
+		Background:      "",
+		BackgroundColor: RGB{Red: 0.00, Green: 0.00, Blue: 0.00},
+		Overlay:         "",
+		Font:            "Xolonium",
+		Width:           560,
+		Height:          720,
+		NumGameTypes:    3,
+		NickConfig: BasicTextConfig{
+			FontSize: 22,
+			Pos:      Position{X: 53, Y: 20},
+			MaxWidth: 270,
+		},
+		GameTypeConfig: BasicTextConfig{
+			FontSize: 10,
+			Pos:      Position{X: 101, Y: 33},
+			Color:    RGB{Red: 0.09, Green: 0.09, Blue: 0.09},
+			TextFmt:  "%s",
+			Width:    94,
+		},
+		NoStatsConfig: BasicTextConfig{
+			FontSize: 12,
+			Pos:      Position{X: 101, Y: 59},
+			Color:    RGB{Red: 0.8, Green: 0.2, Blue: 0.1},
+			Angle:    -10,
+			TextFmt:  "no stats yet!",
+		},
+		EloConfig: BasicTextConfig{
+			FontSize: 10,
+			Pos:      Position{X: 101, Y: 47},
+			Color:    RGB{Red: 1.0, Green: 1.0, Blue: 0.5},
+			TextFmt:  "Elo %.0f",
+		},
+		RankConfig: BasicTextConfig{
+			FontSize: 8,
+			Pos:      Position{X: 101, Y: 58},
+			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 1.0},
+			TextFmt:  "Rank %d of %d",
+		},
+		WinConfig: BasicTextConfig{
+			FontSize:  10,
+			Pos:       Position{X: 508, Y: 3},
+			Color:     RGB{Red: 0.8, Green: 0.8, Blue: 0.8},
+			TextFmt:   "Win Percentage",
+			UpperCase: true,
+		},
+		WinPctConfig: BasicTextConfig{
+			FontSize: 15,
+			Pos:      Position{X: 509, Y: 18},
+			Color:    RGB{Red: 0.00, Green: 0.00, Blue: 0.00},
+			TopColor: RGB{Red: 0.2, Green: 1.0, Blue: 1.0},
+			MidColor: RGB{Red: 0.4, Green: 0.8, Blue: 0.4},
+			BotColor: RGB{Red: 1.0, Green: 1.0, Blue: 0.2},
+		},
+		LossConfig: BasicTextConfig{
+			FontSize: 9,
+			Pos:      Position{X: 508, Y: 44},
+			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 0.6},
+		},
+		KDConfig: BasicTextConfig{
+			FontSize: 10,
+			Pos:      Position{X: 390, Y: 3},
+			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 0.8},
+			TextFmt:  "Kill Ratio",
+			Width:    102,
+		},
+		KDRatio: BasicTextConfig{
+			FontSize: 15,
+			Pos:      Position{X: 392, Y: 18},
+		},
+		KillsConfig: BasicTextConfig{
+			FontSize: 9,
+			Pos:      Position{X: 392, Y: 33},
+			Color:    RGB{Red: 0.6, Green: 0.8, Blue: 0.6},
+		},
+		DeathsConfig: BasicTextConfig{
+			FontSize: 9,
+			Pos:      Position{X: 392, Y: 44},
+			Color:    RGB{Red: 0.8, Green: 0.6, Blue: 0.6},
+		},
+		PlayingTimeConfig: BasicTextConfig{
+			FontSize: 10,
+			Pos:      Position{X: 451, Y: 59},
+			Color:    RGB{Red: 0.1, Green: 0.1, Blue: 0.1},
+			TextFmt:  "Playing Time %s",
+		},
+	},
+	surface: nil,
 }
