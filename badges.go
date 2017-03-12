@@ -37,11 +37,14 @@ func main() {
 		pids = []int{*pid}
 	}
 
-	for _, v := range pids {
-		pd, err := pp.GetPlayerData(v)
+	for _, pid := range pids {
+		pd, err := pp.GetPlayerData(pid)
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("%+v\n", *pd)
+		fmt.Printf("Rendering image for player #%d\n", pid)
+
+		filename := fmt.Sprintf("%d.png", pid)
+		ArcherSkin.Render(pd, filename)
 	}
 }

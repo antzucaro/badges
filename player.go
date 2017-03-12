@@ -201,7 +201,7 @@ LEFT OUTER JOIN
       pe.elo desc NULLS LAST
    LIMIT 3`
 
-    // DEBUG
+	// DEBUG
 	// fmt.Println(sql)
 
 	stmt, err := pp.db.Prepare(sql)
@@ -246,7 +246,7 @@ func (pp *PlayerProcessor) GetPlayerData(playerID int) (*PlayerData, error) {
 		// did we fill in the player information yet?
 		if !filled {
 			pd.Nick = nick
-			pd.StrippedNick = nick
+			pd.StrippedNick = strippedNick
 			filled = true
 		}
 
