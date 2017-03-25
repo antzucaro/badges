@@ -40,26 +40,27 @@ type TextConfig struct {
 
 // SkinParams represents parameters given to Skin objects
 type SkinParams struct {
-	Background        string
-	BackgroundColor   qstr.RGBColor
-	Overlay           string
-	Font              string
-	Width             int
-	Height            int
-	NumGameTypes      int
-	NickConfig        TextConfig
-	GameTypeConfig    TextConfig
-	NoStatsConfig     TextConfig
-	EloConfig         TextConfig
-	RankConfig        TextConfig
-	WinConfig         TextConfig
-	WinPctConfig      TextConfig
-	LossConfig        TextConfig
-	KDConfig          TextConfig
-	KDRatio           TextConfig
-	KillsConfig       TextConfig
-	DeathsConfig      TextConfig
-	PlayingTimeConfig TextConfig
+	Background         string
+	BackgroundColor    qstr.RGBColor
+	Overlay            string
+	Font               string
+	Width              int
+	Height             int
+	NumGameTypes       int
+	NickConfig         TextConfig
+	GameTypeConfig     TextConfig
+	NoStatsConfig      TextConfig
+	EloConfig          TextConfig
+	RankConfig         TextConfig
+	WinPctLabelConfig  TextConfig
+	WinPctConfig       TextConfig
+	WinConfig          TextConfig
+	LossConfig         TextConfig
+	KDRatioLabelConfig TextConfig
+	KDRatio            TextConfig
+	KillsConfig        TextConfig
+	DeathsConfig       TextConfig
+	PlayingTimeConfig  TextConfig
 }
 
 // Skin represents the look and feel of a XonStat badge
@@ -143,19 +144,16 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 		}
 	}
 
-	// Kill Ratio
-	s.placeText("Kill Ratio", s.Params.KDConfig)
+	// Kill Ratio and its details
+	s.placeText("Kill Ratio", s.Params.KDRatioLabelConfig)
 	s.placeText(pd.KDRatio(), s.Params.KDRatio)
 	s.placeText(fmt.Sprintf("%d kills", pd.Kills), s.Params.KillsConfig)
 	s.placeText(fmt.Sprintf("%d deaths", pd.Deaths), s.Params.DeathsConfig)
 
-	// Win Percentage
-	s.placeText("Win Percentage", s.Params.WinConfig)
+	// Win Percentage and its details
+	s.placeText("Win Percentage", s.Params.WinPctLabelConfig)
 	s.placeText(pd.WinPct(), s.Params.WinPctConfig)
-
-	// TODO: hack b/c the wins text config is missing from the params struct
-	s.Params.KillsConfig.Pos = Position{X: 508.0, Y: 37.0}
-	s.placeText(fmt.Sprintf("%d wins", pd.Wins), s.Params.KillsConfig)
+	s.placeText(fmt.Sprintf("%d wins", pd.Wins), s.Params.WinConfig)
 	s.placeText(fmt.Sprintf("%d losses", pd.Losses), s.Params.LossConfig)
 
 	// Playing time
@@ -211,7 +209,7 @@ var ArcherSkin = Skin{
 			Color:    qstr.RGBColor{0.8, 0.8, 1.0},
 			Align:    "center",
 		},
-		WinConfig: TextConfig{
+		WinPctLabelConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
 			Pos:      Position{X: 508.0, Y: 6.0},
@@ -225,6 +223,13 @@ var ArcherSkin = Skin{
 			Color:    qstr.RGBColor{1.00, 1.00, 1.00},
 			Align:    "center",
 		},
+		WinConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 9,
+			Pos:      Position{X: 508.0, Y: 37.0},
+			Color:    qstr.RGBColor{0.8, 0.8, 0.6},
+			Align:    "center",
+		},
 		LossConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 9,
@@ -232,7 +237,7 @@ var ArcherSkin = Skin{
 			Color:    qstr.RGBColor{0.8, 0.8, 0.6},
 			Align:    "center",
 		},
-		KDConfig: TextConfig{
+		KDRatioLabelConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
 			Pos:      Position{X: 390.0, Y: 6.0},
