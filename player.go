@@ -127,7 +127,7 @@ func (pp *PlayerProcessor) initPlayerDataStmt() error {
 	sql := `SELECT
    p.nick,
    p.stripped_nick,
-   agg_stats.game_type_cd,
+   UPPER(agg_stats.game_type_cd) game_type_cd,
    ROUND(pe.elo) elo,
    pr.rank,
    pr.max_rank,
