@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/antzucaro/qstr"
 	"github.com/fogleman/gg"
 )
 
@@ -81,6 +82,22 @@ func (s *Skin) placeText(text string, config TextConfig) {
 	s.context.DrawString(text, config.Pos.X, config.Pos.Y)
 }
 
+// placeQStr does the same thing as placeText does, but with potentially
+// colorized QStrs
+func (s *Skin) placeQStr(text qstr.QStr, config TextConfig) {
+	s.context.LoadFontFace(config.Font, config.FontSize)
+
+	x := config.Pos.X
+	for _, colorPart := range text.ColorParts() {
+		s.context.SetRGB(colorPart.Color.R, colorPart.Color.G, colorPart.Color.B)
+		s.context.DrawString(colorPart.Part, x, config.Pos.Y)
+
+		// the starting point for the next part is the end of the last one
+		w, _ := s.context.MeasureString(colorPart.Part)
+		x += w
+	}
+}
+
 // String representation of a Skin
 func (s *Skin) String() string {
 	return s.Name
@@ -96,7 +113,7 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	s.context = gg.NewContextForImage(im)
 
 	// Nick
-	s.placeText(pd.StrippedNick, s.Params.NickConfig)
+	s.placeQStr(pd.Nick, s.Params.NickConfig)
 
 	// Gametype labels
 	gameTypePositions := []Position{
