@@ -163,6 +163,24 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 		}
 	}
 
+	// Kill Ratio
+	s.placeText("Kill Ratio", s.Params.KDConfig)
+	s.placeText(pd.KDRatio(), s.Params.KDRatio)
+	s.placeText(fmt.Sprintf("%d kills", pd.Kills), s.Params.KillsConfig)
+	s.placeText(fmt.Sprintf("%d deaths", pd.Deaths), s.Params.DeathsConfig)
+
+	// Win Percentage
+	s.placeText("Win Percentage", s.Params.WinConfig)
+	s.placeText(pd.WinPct(), s.Params.WinPctConfig)
+
+	// TODO: hack b/c the wins text config is missing from the params struct
+	s.Params.KillsConfig.Pos = Position{X: 508.0, Y: 37.0}
+	s.placeText(fmt.Sprintf("%d wins", pd.Wins), s.Params.KillsConfig)
+	s.placeText(fmt.Sprintf("%d losses", pd.Losses), s.Params.LossConfig)
+
+	// Playing time
+	s.placeText(fmt.Sprintf("Playing Time: %s", pd.PlayingTime), s.Params.PlayingTimeConfig)
+
 	s.context.SavePNG(filename)
 }
 
@@ -216,50 +234,59 @@ var ArcherSkin = Skin{
 		WinConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
-			Pos:      Position{X: 508.0, Y: 3.0},
+			Pos:      Position{X: 508.0, Y: 6.0},
 			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 0.8},
+			Align:    "center",
 		},
 		WinPctConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 15,
-			Pos:      Position{X: 509.0, Y: 18.0},
-			Color:    RGB{Red: 0.00, Green: 0.00, Blue: 0.00},
+			Pos:      Position{X: 509.0, Y: 24.0},
+			Color:    RGB{Red: 1.00, Green: 1.00, Blue: 1.00},
+			Align:    "center",
 		},
 		LossConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 9,
-			Pos:      Position{X: 508.0, Y: 44.0},
+			Pos:      Position{X: 508.0, Y: 47.0},
 			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 0.6},
+			Align:    "center",
 		},
 		KDConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
-			Pos:      Position{X: 390.0, Y: 3.0},
+			Pos:      Position{X: 390.0, Y: 6.0},
 			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 0.8},
 			Width:    102,
+			Align:    "center",
 		},
 		KDRatio: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 15,
-			Pos:      Position{X: 392.0, Y: 18.0},
+			Pos:      Position{X: 392.0, Y: 24.0},
+			Color:    RGB{Red: 1.00, Green: 1.00, Blue: 1.00},
+			Align:    "center",
 		},
 		KillsConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 9,
-			Pos:      Position{X: 392.0, Y: 33.0},
+			Pos:      Position{X: 392.0, Y: 37.0},
 			Color:    RGB{Red: 0.6, Green: 0.8, Blue: 0.6},
+			Align:    "center",
 		},
 		DeathsConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 9,
-			Pos:      Position{X: 392.0, Y: 44.0},
+			Pos:      Position{X: 392.0, Y: 47.0},
 			Color:    RGB{Red: 0.8, Green: 0.6, Blue: 0.6},
+			Align:    "center",
 		},
 		PlayingTimeConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
-			Pos:      Position{X: 451.0, Y: 59.0},
+			Pos:      Position{X: 451.0, Y: 63.0},
 			Color:    RGB{Red: 0.1, Green: 0.1, Blue: 0.1},
+			Align:    "center",
 		},
 	},
 }
