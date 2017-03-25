@@ -96,8 +96,10 @@ func (s *Skin) placeQStr(text qstr.QStr, config TextConfig) {
 	s.context.LoadFontFace(config.Font, config.FontSize)
 
 	x := config.Pos.X
+	var cappedColor qstr.RGBColor
 	for _, colorPart := range text.ColorParts() {
-		s.context.SetRGB(colorPart.Color.R, colorPart.Color.G, colorPart.Color.B)
+		cappedColor = colorPart.Color.CapLightness(0.4, 1)
+		s.context.SetRGB(cappedColor.R, cappedColor.G, cappedColor.B)
 		s.context.DrawString(colorPart.Part, x, config.Pos.Y)
 
 		// the starting point for the next part is the end of the last one
