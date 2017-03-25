@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/antzucaro/qstr"
 	_ "github.com/lib/pq"
 	"time"
 )
@@ -22,7 +23,7 @@ type playerRank struct {
 
 // PlayerData holds aggregate statistics for players
 type PlayerData struct {
-	Nick         string
+	Nick         qstr.QStr
 	StrippedNick string
 	Elos         []playerElo
 	Ranks        []playerRank
@@ -245,7 +246,7 @@ func (pp *PlayerProcessor) GetPlayerData(playerID int) (*PlayerData, error) {
 
 		// did we fill in the player information yet?
 		if !filled {
-			pd.Nick = nick
+			pd.Nick = qstr.QStr(nick)
 			pd.StrippedNick = strippedNick
 			filled = true
 		}
