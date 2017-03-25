@@ -119,36 +119,21 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	s.placeQStr(pd.Nick, s.Params.NickConfig)
 
 	// Gametype labels
-	gameTypePositions := []Position{
-		Position{X: 100.0, Y: 35.0},
-		Position{X: 195.0, Y: 35.0},
-		Position{X: 290.0, Y: 35.0},
-	}
-
+	gameTypePositions := []Position{{100.0, 35.0}, {195.0, 35.0}, {290.0, 35.0}}
 	for i, elo := range pd.Elos {
 		s.Params.GameTypeConfig.Pos = gameTypePositions[i]
 		s.placeText(elo.GameType, s.Params.GameTypeConfig)
 	}
 
 	// Elos for those game types
-	eloPositions := []Position{
-		Position{X: 100.0, Y: 50.0},
-		Position{X: 195.0, Y: 50.0},
-		Position{X: 290.0, Y: 50.0},
-	}
-
+	eloPositions := []Position{{100.0, 50.0}, {195.0, 50.0}, {290.0, 50.0}}
 	for i, elo := range pd.Elos {
 		s.Params.EloConfig.Pos = eloPositions[i]
 		s.placeText(fmt.Sprintf("Elo %d", elo.Elo), s.Params.EloConfig)
 	}
 
 	// Ranks for those game types
-	rankPositions := []Position{
-		Position{X: 100.0, Y: 60.0},
-		Position{X: 195.0, Y: 60.0},
-		Position{X: 290.0, Y: 60.0},
-	}
-
+	rankPositions := []Position{{100.0, 60.0}, {195.0, 60.0}, {290.0, 60.0}}
 	for i, pos := range rankPositions {
 		s.Params.RankConfig.Pos = pos
 		if i < len(pd.Ranks) {
