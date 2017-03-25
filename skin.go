@@ -86,13 +86,19 @@ func (s *Skin) placeText(text string, config TextConfig) {
 
 // placeQStr does the same thing as placeText does, but with potentially
 // colorized QStrs
-func (s *Skin) placeQStr(text qstr.QStr, config TextConfig) {
+func (s *Skin) placeQStr(text qstr.QStr, config TextConfig, lightnessFloor float64, lightnessCeiling float64) {
 	s.context.LoadFontFace(config.Font, config.FontSize)
 
 	x := config.Pos.X
 	var cappedColor qstr.RGBColor
 	for _, colorPart := range text.ColorParts() {
-		cappedColor = colorPart.Color.CapLightness(0.4, 1)
+		// allow capping the lightness at the high or low end depending on the background
+		if lightnessFloor > 0 || lightnessCeiling < 1 {
+			cappedColor = colorPart.Color.CapLightness(lightnessFloor, lightnessCeiling)
+		} else {
+			cappedColor = colorPart.Color
+		}
+
 		s.context.SetRGB(cappedColor.R, cappedColor.G, cappedColor.B)
 		s.context.DrawString(colorPart.Part, x, config.Pos.Y)
 
@@ -117,7 +123,7 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	s.context = gg.NewContextForImage(im)
 
 	// Nick
-	s.placeQStr(pd.Nick, s.Params.NickConfig)
+	s.placeQStr(pd.Nick, s.Params.NickConfig, 0.4, 1)
 
 	// Gametype labels
 	gameTypePositions := []Position{{100.0, 35.0}, {195.0, 35.0}, {290.0, 35.0}}
