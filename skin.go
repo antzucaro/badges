@@ -6,13 +6,6 @@ import (
 	"github.com/fogleman/gg"
 )
 
-// RGB is an RGB value
-type RGB struct {
-	Red   float64
-	Green float64
-	Blue  float64
-}
-
 // Position is an (x,y) coordinate
 type Position struct {
 	X float64
@@ -31,7 +24,7 @@ type TextConfig struct {
 	Pos Position
 
 	// The color the text will be
-	Color RGB
+	Color qstr.RGBColor
 
 	// Rotation
 	Angle int
@@ -48,7 +41,7 @@ type TextConfig struct {
 // SkinParams represents parameters given to Skin objects
 type SkinParams struct {
 	Background        string
-	BackgroundColor   RGB
+	BackgroundColor   qstr.RGBColor
 	Overlay           string
 	Font              string
 	Width             int
@@ -79,7 +72,7 @@ type Skin struct {
 // placeText "writes" text on the drawing canvas
 func (s *Skin) placeText(text string, config TextConfig) {
 	s.context.LoadFontFace(config.Font, config.FontSize)
-	s.context.SetRGB(config.Color.Red, config.Color.Green, config.Color.Blue)
+	s.context.SetRGB(config.Color.R, config.Color.G, config.Color.B)
 	if config.Align == "" {
 		s.context.DrawString(text, config.Pos.X, config.Pos.Y)
 	} else if config.Align == "center" {
@@ -191,7 +184,7 @@ var ArcherSkin = Skin{
 	Name: "archer",
 	Params: SkinParams{
 		Background:      "images/background_archer-v3.png",
-		BackgroundColor: RGB{Red: 0.00, Green: 0.00, Blue: 0.00},
+		BackgroundColor: qstr.RGBColor{0.00, 0.00, 0.00},
 		Overlay:         "",
 		Font:            "Xolonium",
 		Width:           560,
@@ -201,14 +194,14 @@ var ArcherSkin = Skin{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 22,
 			Pos:      Position{X: 53.0, Y: 20.0},
-			Color:    RGB{Red: 0.5, Green: 0.5, Blue: 0.5},
+			Color:    qstr.RGBColor{0.5, 0.5, 0.5},
 			MaxWidth: 270,
 		},
 		GameTypeConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
 			Pos:      Position{X: 101.0, Y: 33.0},
-			Color:    RGB{Red: 0.9, Green: 0.9, Blue: 0.9},
+			Color:    qstr.RGBColor{0.9, 0.9, 0.9},
 			Width:    94,
 			Align:    "center",
 		},
@@ -216,49 +209,49 @@ var ArcherSkin = Skin{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 12,
 			Pos:      Position{X: 101.0, Y: 59.0},
-			Color:    RGB{Red: 0.8, Green: 0.2, Blue: 0.1},
+			Color:    qstr.RGBColor{0.8, 0.2, 0.1},
 			Angle:    -10,
 		},
 		EloConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
 			Pos:      Position{X: 101.0, Y: 47.0},
-			Color:    RGB{Red: 1.0, Green: 1.0, Blue: 0.5},
+			Color:    qstr.RGBColor{1.0, 1.0, 0.5},
 			Align:    "center",
 		},
 		RankConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 8,
 			Pos:      Position{X: 101.0, Y: 58.0},
-			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 1.0},
+			Color:    qstr.RGBColor{0.8, 0.8, 1.0},
 			Align:    "center",
 		},
 		WinConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
 			Pos:      Position{X: 508.0, Y: 6.0},
-			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 0.8},
+			Color:    qstr.RGBColor{0.8, 0.8, 0.8},
 			Align:    "center",
 		},
 		WinPctConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 15,
 			Pos:      Position{X: 509.0, Y: 24.0},
-			Color:    RGB{Red: 1.00, Green: 1.00, Blue: 1.00},
+			Color:    qstr.RGBColor{1.00, 1.00, 1.00},
 			Align:    "center",
 		},
 		LossConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 9,
 			Pos:      Position{X: 508.0, Y: 47.0},
-			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 0.6},
+			Color:    qstr.RGBColor{0.8, 0.8, 0.6},
 			Align:    "center",
 		},
 		KDConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
 			Pos:      Position{X: 390.0, Y: 6.0},
-			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 0.8},
+			Color:    qstr.RGBColor{0.8, 0.8, 0.8},
 			Width:    102,
 			Align:    "center",
 		},
@@ -266,28 +259,28 @@ var ArcherSkin = Skin{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 15,
 			Pos:      Position{X: 392.0, Y: 24.0},
-			Color:    RGB{Red: 1.00, Green: 1.00, Blue: 1.00},
+			Color:    qstr.RGBColor{1.00, 1.00, 1.00},
 			Align:    "center",
 		},
 		KillsConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 9,
 			Pos:      Position{X: 392.0, Y: 37.0},
-			Color:    RGB{Red: 0.6, Green: 0.8, Blue: 0.6},
+			Color:    qstr.RGBColor{0.6, 0.8, 0.6},
 			Align:    "center",
 		},
 		DeathsConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 9,
 			Pos:      Position{X: 392.0, Y: 47.0},
-			Color:    RGB{Red: 0.8, Green: 0.6, Blue: 0.6},
+			Color:    qstr.RGBColor{0.8, 0.6, 0.6},
 			Align:    "center",
 		},
 		PlayingTimeConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
 			Pos:      Position{X: 451.0, Y: 63.0},
-			Color:    RGB{Red: 0.1, Green: 0.1, Blue: 0.1},
+			Color:    qstr.RGBColor{0.1, 0.1, 0.1},
 			Align:    "center",
 		},
 	},
