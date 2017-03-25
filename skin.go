@@ -147,6 +147,22 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 		s.placeText(fmt.Sprintf("Elo %d", elo.Elo), s.Params.EloConfig)
 	}
 
+	// Ranks for those game types
+	rankPositions := []Position{
+		Position{X: 100.0, Y: 60.0},
+		Position{X: 195.0, Y: 60.0},
+		Position{X: 290.0, Y: 60.0},
+	}
+
+	for i, pos := range rankPositions {
+		s.Params.RankConfig.Pos = pos
+		if i < len(pd.Ranks) {
+			s.placeText(fmt.Sprintf("Rank %d of %d", pd.Ranks[i].Rank, pd.Ranks[i].MaxRank), s.Params.RankConfig)
+		} else {
+			s.placeText("(preliminary)", s.Params.RankConfig)
+		}
+	}
+
 	s.context.SavePNG(filename)
 }
 
@@ -195,6 +211,7 @@ var ArcherSkin = Skin{
 			FontSize: 8,
 			Pos:      Position{X: 101.0, Y: 58.0},
 			Color:    RGB{Red: 0.8, Green: 0.8, Blue: 1.0},
+			Align:    "center",
 		},
 		WinConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
