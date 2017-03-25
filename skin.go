@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/antzucaro/qstr"
 	"github.com/fogleman/gg"
 )
@@ -40,8 +41,8 @@ type TextConfig struct {
 	Width    int
 	MaxWidth int
 
-	// Text alignment: left: -1, center: 0, right: 1
-	Align int
+	// Text alignment
+	Align string
 }
 
 // SkinParams represents parameters given to Skin objects
@@ -79,7 +80,14 @@ type Skin struct {
 func (s *Skin) placeText(text string, config TextConfig) {
 	s.context.LoadFontFace(config.Font, config.FontSize)
 	s.context.SetRGB(config.Color.Red, config.Color.Green, config.Color.Blue)
-	s.context.DrawString(text, config.Pos.X, config.Pos.Y)
+	if config.Align == "" {
+		s.context.DrawString(text, config.Pos.X, config.Pos.Y)
+	} else if config.Align == "center" {
+		s.context.DrawStringAnchored(text, config.Pos.X, config.Pos.Y, 0.5, 0.5)
+	} else if config.Align == "right" {
+		s.context.DrawStringAnchored(text, config.Pos.X, config.Pos.Y, 1, 0.5)
+	}
+
 }
 
 // placeQStr does the same thing as placeText does, but with potentially
@@ -117,14 +125,26 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 
 	// Gametype labels
 	gameTypePositions := []Position{
-		Position{X: 100.0, Y: 40.0},
-		Position{X: 195.0, Y: 40.0},
-		Position{X: 290.0, Y: 40.0},
+		Position{X: 100.0, Y: 35.0},
+		Position{X: 195.0, Y: 35.0},
+		Position{X: 290.0, Y: 35.0},
 	}
 
 	for i, elo := range pd.Elos {
 		s.Params.GameTypeConfig.Pos = gameTypePositions[i]
 		s.placeText(elo.GameType, s.Params.GameTypeConfig)
+	}
+
+	// Elos for those game types
+	eloPositions := []Position{
+		Position{X: 100.0, Y: 50.0},
+		Position{X: 195.0, Y: 50.0},
+		Position{X: 290.0, Y: 50.0},
+	}
+
+	for i, elo := range pd.Elos {
+		s.Params.EloConfig.Pos = eloPositions[i]
+		s.placeText(fmt.Sprintf("Elo %d", elo.Elo), s.Params.EloConfig)
 	}
 
 	s.context.SavePNG(filename)
@@ -154,6 +174,7 @@ var ArcherSkin = Skin{
 			Pos:      Position{X: 101.0, Y: 33.0},
 			Color:    RGB{Red: 0.9, Green: 0.9, Blue: 0.9},
 			Width:    94,
+			Align:    "center",
 		},
 		NoStatsConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
@@ -167,6 +188,7 @@ var ArcherSkin = Skin{
 			FontSize: 10,
 			Pos:      Position{X: 101.0, Y: 47.0},
 			Color:    RGB{Red: 1.0, Green: 1.0, Blue: 0.5},
+			Align:    "center",
 		},
 		RankConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
