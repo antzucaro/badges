@@ -89,6 +89,16 @@ func (s *Skin) placeText(text string, config TextConfig) {
 func (s *Skin) placeQStr(text qstr.QStr, config TextConfig, lightnessFloor float64, lightnessCeiling float64) {
 	s.context.LoadFontFace(config.Font, config.FontSize)
 
+	// shrink the nick until it fits within the allotted space
+	stripped := text.Stripped()
+	for w, _ := s.context.MeasureString(stripped); int(w) > config.MaxWidth; {
+		// decrease the fontsize by two points and try again
+		config.FontSize -= 2
+
+		s.context.LoadFontFace(config.Font, config.FontSize)
+		w, _ = s.context.MeasureString(stripped)
+	}
+
 	x := config.Pos.X
 	var cappedColor qstr.RGBColor
 	for _, colorPart := range text.ColorParts() {
