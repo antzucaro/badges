@@ -56,7 +56,6 @@ func (pd *PlayerData) WinPct() string {
 // PlayerProcessor fetches player information from the database
 type PlayerProcessor struct {
 	db             *sql.DB
-	playerDataStmt *sql.Stmt
 }
 
 // NewPlayerProcessor creates a new PlayerProcessor for obtaining
@@ -121,10 +120,10 @@ func (pp *PlayerProcessor) FindPlayers(delta int, limit int) ([]int, error) {
 	return pids, nil
 }
 
-// initPlayerDataStmt prepares the statement used to fetch
+// initPlayerDataStmt generates the SQL statement string used to fetch
 // the information used to populate PlayerData objects
-func (pp *PlayerProcessor) initPlayerDataStmt() error {
-	sql := `SELECT
+func (pp *PlayerProcessor) genPlayerDataStmt(playerID int) string {
+	query := `SELECT
    p.nick,
    p.stripped_nick,
    UPPER(agg_stats.game_type_cd) game_type_cd,
@@ -161,8 +160,8 @@ FROM
       player_game_stats pgs             
    WHERE
       g.game_id = pgs.game_id             
-      AND pgs.player_id =  $1            /*
-      AND g.players @> ARRAY[6]*/) agg_stats             
+      AND pgs.player_id = %d
+      AND g.players @> ARRAY[%d]) agg_stats
 JOIN
    players p 
       on p.player_id = agg_stats.player_id            
@@ -188,7 +187,7 @@ LEFT OUTER JOIN
       where
          pr.game_type_cd = overall.game_type_cd                    
          and max_rank > 1                   
-         and player_id = $2
+         and player_id = %d
       ) pr 
          on pr.game_type_cd = pe.game_type_cd            
    GROUP BY
@@ -202,28 +201,14 @@ LEFT OUTER JOIN
       pe.elo desc NULLS LAST
    LIMIT 3`
 
-	// DEBUG
-	// fmt.Println(sql)
-
-	stmt, err := pp.db.Prepare(sql)
-	if err != nil {
-		return err
-	}
-	pp.playerDataStmt = stmt
-
-	return nil
+	return fmt.Sprintf(query, playerID, playerID, playerID)
 }
 
 // GetPlayerData retrieves player information for the given player_id
 func (pp *PlayerProcessor) GetPlayerData(playerID int) (*PlayerData, error) {
-	if pp.playerDataStmt == nil {
-		err := pp.initPlayerDataStmt()
-		if err != nil {
-			return nil, err
-		}
-	}
+	sqlQuery := pp.genPlayerDataStmt(playerID)
 
-	rows, err := pp.playerDataStmt.Query(playerID, playerID)
+	rows, err := pp.db.Query(sqlQuery)
 	if err != nil {
 		return nil, err
 	}
