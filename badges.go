@@ -15,7 +15,7 @@ func main() {
 	// verbose := flag.Bool("verbose", false, "Turn on verbose output and timings")
 	flag.Parse()
 
-	pp, err := NewPlayerProcessor(config.Config.ConnStr)
+	pp, err := NewPlayerDataFetcher(config.Config.ConnStr)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -53,14 +53,14 @@ func (pd *PlayerData) WinPct() string {
 	}
 }
 
-// PlayerProcessor fetches player information from the database
-type PlayerProcessor struct {
+// PlayerDataFetcher fetches player information from the database
+type PlayerDataFetcher struct {
 	db             *sql.DB
 }
 
-// NewPlayerProcessor creates a new PlayerProcessor for obtaining
+// NewPlayerDataFetcher creates a new PlayerDataFetcher for obtaining
 // player information from the database
-func NewPlayerProcessor(connStr string) (*PlayerProcessor, error) {
+func NewPlayerDataFetcher(connStr string) (*PlayerDataFetcher, error) {
 	// establish a database connection
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -75,7 +75,7 @@ func NewPlayerProcessor(connStr string) (*PlayerProcessor, error) {
 	// connection pooling
 	db.SetMaxIdleConns(5)
 
-	pp := new(PlayerProcessor)
+	pp := new(PlayerDataFetcher)
 	pp.db = db
 	return pp, nil
 }
@@ -84,7 +84,7 @@ func NewPlayerProcessor(connStr string) (*PlayerProcessor, error) {
 // If delta is set, it will look for players who have had activity in the last
 // $delta hours. If limit is set, the total number of player_ids returned is
 // limited to that amount.
-func (pp *PlayerProcessor) FindPlayers(delta int, limit int) ([]int, error) {
+func (pp *PlayerDataFetcher) FindPlayers(delta int, limit int) ([]int, error) {
 	playersSQL := `SELECT distinct p.player_id 
 	FROM players p JOIN player_game_stats pgs on p.player_id = pgs.player_id
     JOIN player_elos pe on p.player_id = pe.player_id
@@ -122,7 +122,7 @@ func (pp *PlayerProcessor) FindPlayers(delta int, limit int) ([]int, error) {
 
 // initPlayerDataStmt generates the SQL statement string used to fetch
 // the information used to populate PlayerData objects
-func (pp *PlayerProcessor) genPlayerDataStmt(playerID int) string {
+func (pp *PlayerDataFetcher) genPlayerDataStmt(playerID int) string {
 	query := `SELECT
    p.nick,
    p.stripped_nick,
@@ -205,7 +205,7 @@ LEFT OUTER JOIN
 }
 
 // GetPlayerData retrieves player information for the given player_id
-func (pp *PlayerProcessor) GetPlayerData(playerID int) (*PlayerData, error) {
+func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 	sqlQuery := pp.genPlayerDataStmt(playerID)
 
 	rows, err := pp.db.Query(sqlQuery)
