@@ -35,27 +35,27 @@ type PlayerData struct {
 }
 
 // KDRatio returns the player's Kill:Death ratio as a string
-func (pd *PlayerData) KDRatio() string {
+func (pd *PlayerData) KDRatio() float64 {
 	if pd.Deaths > 0 {
-		return fmt.Sprintf("%.3f", float64(pd.Kills)/float64(pd.Deaths))
+		return float64(pd.Kills) / float64(pd.Deaths)
 	} else {
-		return "0.000"
+		return 0.000
 	}
 }
 
 // WinPct returns the player's win percentage as a string
-func (pd *PlayerData) WinPct() string {
+func (pd *PlayerData) WinPct() float64 {
 	totalGames := pd.Wins + pd.Losses
 	if totalGames > 0 {
-		return fmt.Sprintf("%.2f%%", float64(pd.Wins)/float64(totalGames)*100)
+		return float64(pd.Wins) / float64(totalGames) * 100
 	} else {
-		return "0.00%"
+		return 0.00
 	}
 }
 
 // PlayerDataFetcher fetches player information from the database
 type PlayerDataFetcher struct {
-	db             *sql.DB
+	db *sql.DB
 }
 
 // NewPlayerDataFetcher creates a new PlayerDataFetcher for obtaining

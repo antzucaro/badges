@@ -162,13 +162,13 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 
 	// Kill Ratio and its details
 	s.placeText("Kill Ratio", s.Params.KDRatioLabelConfig)
-	s.placeText(pd.KDRatio(), s.Params.KDRatio)
+	s.placeText(fmt.Sprintf("%.3f", pd.KDRatio()), s.Params.KDRatio)
 	s.placeText(fmt.Sprintf("%d kills", pd.Kills), s.Params.KillsConfig)
 	s.placeText(fmt.Sprintf("%d deaths", pd.Deaths), s.Params.DeathsConfig)
 
 	// Win Percentage and its details
 	s.placeText("Win Percentage", s.Params.WinPctLabelConfig)
-	s.placeText(pd.WinPct(), s.Params.WinPctConfig)
+	s.placeText(fmt.Sprintf("%.2f%%", pd.WinPct()), s.Params.WinPctConfig)
 	s.placeText(fmt.Sprintf("%d wins", pd.Wins), s.Params.WinConfig)
 	s.placeText(fmt.Sprintf("%d losses", pd.Losses), s.Params.LossConfig)
 
