@@ -162,7 +162,31 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 
 	// Kill Ratio and its details
 	s.placeText("Kill Ratio", s.Params.KDRatioLabelConfig)
-	s.placeText(fmt.Sprintf("%.3f", pd.KDRatio()), s.Params.KDRatio)
+
+	kdRatio := pd.KDRatio()
+	if kdRatio >= 1.0 {
+		nr := kdRatio - 1.0
+		if nr > 1 {
+			nr = 1.0
+		}
+
+		// shade the KDRatio according to how good it is
+		r := nr*s.Params.KDRatio.Color[0].R + (1-nr)*s.Params.KDRatio.Color[1].R
+		g := nr*s.Params.KDRatio.Color[0].G + (1-nr)*s.Params.KDRatio.Color[1].G
+		b := nr*s.Params.KDRatio.Color[0].B + (1-nr)*s.Params.KDRatio.Color[1].B
+
+		s.Params.KDRatio.Color[0] = qstr.RGBColor{r, g, b}
+		s.placeText(fmt.Sprintf("%.3f", pd.KDRatio()), s.Params.KDRatio)
+	} else {
+		// shade the KDRatio according to how, erm, bad it is
+		r := kdRatio*s.Params.KDRatio.Color[1].R + (1-kdRatio)*s.Params.KDRatio.Color[2].R
+		g := kdRatio*s.Params.KDRatio.Color[1].G + (1-kdRatio)*s.Params.KDRatio.Color[2].G
+		b := kdRatio*s.Params.KDRatio.Color[1].B + (1-kdRatio)*s.Params.KDRatio.Color[2].B
+
+		s.Params.KDRatio.Color[0] = qstr.RGBColor{r, g, b}
+		s.placeText(fmt.Sprintf("%.3f", pd.KDRatio()), s.Params.KDRatio)
+	}
+
 	s.placeText(fmt.Sprintf("%d kills", pd.Kills), s.Params.KillsConfig)
 	s.placeText(fmt.Sprintf("%d deaths", pd.Deaths), s.Params.DeathsConfig)
 
@@ -236,7 +260,7 @@ var ArcherSkin = Skin{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 15,
 			Pos:      Position{X: 509.0, Y: 24.0},
-			Color:    []qstr.RGBColor{{1.00, 1.00, 1.00}},
+			Color:    []qstr.RGBColor{{0.2, 1.0, 1.0}, {0.4, 0.8, 0.4}, {1.0, 1.0, 0.2}},
 			Align:    "center",
 		},
 		WinConfig: TextConfig{
@@ -265,7 +289,7 @@ var ArcherSkin = Skin{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 15,
 			Pos:      Position{X: 392.0, Y: 24.0},
-			Color:    []qstr.RGBColor{{1.00, 1.00, 1.00}},
+			Color:    []qstr.RGBColor{{0.2, 1.0, 0.2}, {0.8, 0.8, 0.4}, {1.0, 0.2, 0.2}},
 			Align:    "center",
 		},
 		KillsConfig: TextConfig{
