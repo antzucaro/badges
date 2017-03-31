@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"path/filepath"
 	"github.com/antzucaro/qstr"
 	"github.com/fogleman/gg"
@@ -153,12 +154,36 @@ func (s *Skin) String() string {
 
 // Render the provided PlayerData using this Skin
 func (s *Skin) Render(pd *PlayerData, filename string) {
+	s.context = gg.NewContext(s.Params.Width, s.Params.Height)
+
 	// load the background
-	im, err := gg.LoadPNG(s.Params.Background)
-	if err != nil {
-		panic(err)
+	if s.Params.Background != "" {
+		bg, err := gg.LoadPNG(s.Params.Background)
+
+		// the background can be a small image that can be repeated (tiled)
+		bgW := bg.Bounds().Size().X
+		bgH := bg.Bounds().Size().Y
+		if err != nil {
+			panic(err)
+		}
+
+		repeatX := int(math.Ceil(float64(s.Params.Width)/float64(bgW)))
+		repeatY := int(math.Ceil(float64(s.Params.Height)/float64(bgH)))
+		for i:=0; i < repeatX; i++ {
+			for j:=0; j < repeatY; j++ {
+				s.context.DrawImage(bg, bgW*i, bgH*j)
+			}
+		}
 	}
-	s.context = gg.NewContextForImage(im)
+
+	// load the overlay
+	if s.Params.Overlay != "" {
+		overlay, err := gg.LoadPNG(s.Params.Overlay)
+		if err != nil {
+			panic(err)
+		}
+		s.context.DrawImage(overlay, 0, 0)
+	}
 
 	// Nick
 	s.placeQStr(pd.Nick, s.Params.NickConfig, 0.4, 1)
@@ -258,7 +283,7 @@ var ArcherSkin = Skin{
 		Overlay:         "",
 		Font:            "Xolonium",
 		Width:           560,
-		Height:          720,
+		Height:          70,
 		NumGameTypes:    3,
 		NickConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
@@ -367,12 +392,12 @@ var ArcherSkin = Skin{
 var DefaultSkin = Skin{
 	Name: "default",
 	Params: SkinParams{
-		Background:      "images/overlay_classic.png",
+		Background:      "images/broken_noise.png",
 		BackgroundColor: qstr.RGBColor{0.00, 0.00, 0.00},
-		Overlay:         "",
+		Overlay:         "images/overlay_classic.png",
 		Font:            "Xolonium",
 		Width:           560,
-		Height:          720,
+		Height:          70,
 		NumGameTypes:    3,
 		NickConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
