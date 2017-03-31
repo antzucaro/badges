@@ -73,7 +73,7 @@ type Skin struct {
 	fontCache map[string]font.Face
 }
 
-// loadFontFace loads a font either from the cache or from the filesystem
+// setFontFace loads a font either from the cache or from the filesystem
 func (s *Skin) setFontFace(path string, points float64) error {
 	// do we even have a cache yet?
 	if len(s.fontCache) == 0 {
