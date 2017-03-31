@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"math"
-	"path/filepath"
 	"github.com/antzucaro/qstr"
 	"github.com/fogleman/gg"
 	"golang.org/x/image/font"
+	"math"
+	"path/filepath"
 )
 
 // Position is an (x,y) coordinate
@@ -68,9 +68,9 @@ type SkinParams struct {
 
 // Skin represents the look and feel of a XonStat badge
 type Skin struct {
-	Name    string
-	Params  SkinParams
-	context *gg.Context
+	Name      string
+	Params    SkinParams
+	context   *gg.Context
 	fontCache map[string]font.Face
 }
 
@@ -167,10 +167,10 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 			panic(err)
 		}
 
-		repeatX := int(math.Ceil(float64(s.Params.Width)/float64(bgW)))
-		repeatY := int(math.Ceil(float64(s.Params.Height)/float64(bgH)))
-		for i:=0; i < repeatX; i++ {
-			for j:=0; j < repeatY; j++ {
+		repeatX := int(math.Ceil(float64(s.Params.Width) / float64(bgW)))
+		repeatY := int(math.Ceil(float64(s.Params.Height) / float64(bgH)))
+		for i := 0; i < repeatX; i++ {
+			for j := 0; j < repeatY; j++ {
 				s.context.DrawImage(bg, bgW*i, bgH*j)
 			}
 		}
