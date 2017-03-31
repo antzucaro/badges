@@ -42,9 +42,9 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("Rendering image for player #%d\n", pid)
+		fmt.Printf("Rendering images for player #%d\n", pid)
 
-		filename := fmt.Sprintf("%d.png", pid)
-		ArcherSkin.Render(pd, filename)
+		DefaultSkin.Render(pd, fmt.Sprintf("%d.png", pid))
+		ArcherSkin.Render(pd, fmt.Sprintf("%d_archer.png", pid))
 	}
 }

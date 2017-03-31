@@ -249,7 +249,7 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	s.context.SavePNG(filename)
 }
 
-// The "classic" skin theme
+// The "Archer" skin theme
 var ArcherSkin = Skin{
 	Name: "archer",
 	Params: SkinParams{
@@ -356,7 +356,121 @@ var ArcherSkin = Skin{
 		PlayingTimeConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
 			FontSize: 10,
-			Pos:      Position{X: 451.0, Y: 63.0},
+			Pos:      Position{X: 451.0, Y: 61.0},
+			Color:    []qstr.RGBColor{{0.1, 0.1, 0.1}},
+			Align:    "center",
+		},
+	},
+}
+
+// The "Archer" skin theme
+var DefaultSkin = Skin{
+	Name: "default",
+	Params: SkinParams{
+		Background:      "images/overlay_classic.png",
+		BackgroundColor: qstr.RGBColor{0.00, 0.00, 0.00},
+		Overlay:         "",
+		Font:            "Xolonium",
+		Width:           560,
+		Height:          720,
+		NumGameTypes:    3,
+		NickConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 22,
+			Pos:      Position{X: 53.0, Y: 20.0},
+			Color:    []qstr.RGBColor{{0.5, 0.5, 0.5}},
+			MaxWidth: 270,
+		},
+		GameTypeConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 10,
+			Pos:      Position{X: 101.0, Y: 33.0},
+			Color:    []qstr.RGBColor{{0.9, 0.9, 0.9}},
+			Width:    94,
+			Align:    "center",
+		},
+		NoStatsConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 12,
+			Pos:      Position{X: 101.0, Y: 59.0},
+			Color:    []qstr.RGBColor{{0.8, 0.2, 0.1}},
+			Angle:    -10,
+		},
+		EloConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 10,
+			Pos:      Position{X: 101.0, Y: 47.0},
+			Color:    []qstr.RGBColor{{1.0, 1.0, 0.5}},
+			Align:    "center",
+		},
+		RankConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 8,
+			Pos:      Position{X: 101.0, Y: 58.0},
+			Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
+			Align:    "center",
+		},
+		WinPctLabelConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 10,
+			Pos:      Position{X: 508.0, Y: 6.0},
+			Color:    []qstr.RGBColor{{0.8, 0.8, 0.8}},
+			Align:    "center",
+		},
+		WinPctConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 15,
+			Pos:      Position{X: 509.0, Y: 24.0},
+			Color:    []qstr.RGBColor{{0.2, 1.0, 1.0}, {0.4, 0.8, 0.4}, {1.0, 1.0, 0.2}},
+			Align:    "center",
+		},
+		WinConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 9,
+			Pos:      Position{X: 508.0, Y: 37.0},
+			Color:    []qstr.RGBColor{{0.8, 0.8, 0.6}},
+			Align:    "center",
+		},
+		LossConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 9,
+			Pos:      Position{X: 508.0, Y: 47.0},
+			Color:    []qstr.RGBColor{{0.8, 0.8, 0.6}},
+			Align:    "center",
+		},
+		KDRatioLabelConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 10,
+			Pos:      Position{X: 390.0, Y: 6.0},
+			Color:    []qstr.RGBColor{{0.8, 0.8, 0.8}},
+			Width:    102,
+			Align:    "center",
+		},
+		KDRatio: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 15,
+			Pos:      Position{X: 392.0, Y: 24.0},
+			Color:    []qstr.RGBColor{{0.2, 1.0, 0.2}, {0.8, 0.8, 0.4}, {1.0, 0.2, 0.2}},
+			Align:    "center",
+		},
+		KillsConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 9,
+			Pos:      Position{X: 392.0, Y: 37.0},
+			Color:    []qstr.RGBColor{{0.6, 0.8, 0.6}},
+			Align:    "center",
+		},
+		DeathsConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 9,
+			Pos:      Position{X: 392.0, Y: 47.0},
+			Color:    []qstr.RGBColor{{0.8, 0.6, 0.6}},
+			Align:    "center",
+		},
+		PlayingTimeConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 10,
+			Pos:      Position{X: 451.0, Y: 61.0},
 			Color:    []qstr.RGBColor{{0.1, 0.1, 0.1}},
 			Align:    "center",
 		},
