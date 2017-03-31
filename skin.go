@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 	"github.com/antzucaro/qstr"
 	"github.com/fogleman/gg"
+	"golang.org/x/image/font"
 )
 
 // Position is an (x,y) coordinate
@@ -68,11 +70,37 @@ type Skin struct {
 	Name    string
 	Params  SkinParams
 	context *gg.Context
+	fontCache map[string]font.Face
+}
+
+// loadFontFace loads a font either from the cache or from the filesystem
+func (s *Skin) setFontFace(path string, points float64) error {
+	// do we even have a cache yet?
+	if len(s.fontCache) == 0 {
+		s.fontCache = make(map[string]font.Face)
+	}
+
+	_, file := filepath.Split(path)
+	key := fmt.Sprintf("%s %f", file, points)
+	if ff, ok := s.fontCache[key]; ok {
+		s.context.SetFontFace(ff)
+		return nil
+	} else {
+		ff, err := gg.LoadFontFace(path, points)
+		if err != nil {
+			return err
+		} else {
+			s.context.SetFontFace(ff)
+			s.fontCache[key] = ff
+			return nil
+		}
+	}
 }
 
 // placeText "writes" text on the drawing canvas
 func (s *Skin) placeText(text string, config TextConfig) {
-	s.context.LoadFontFace(config.Font, config.FontSize)
+	s.setFontFace(config.Font, config.FontSize)
+
 	s.context.SetRGB(config.Color[0].R, config.Color[0].G, config.Color[0].B)
 	if config.Align == "" {
 		s.context.DrawString(text, config.Pos.X, config.Pos.Y)
@@ -87,7 +115,7 @@ func (s *Skin) placeText(text string, config TextConfig) {
 // placeQStr does the same thing as placeText does, but with potentially
 // colorized QStrs
 func (s *Skin) placeQStr(text qstr.QStr, config TextConfig, lightnessFloor float64, lightnessCeiling float64) {
-	s.context.LoadFontFace(config.Font, config.FontSize)
+	s.setFontFace(config.Font, config.FontSize)
 
 	// shrink the nick until it fits within the allotted space
 	stripped := text.Stripped()
@@ -95,7 +123,7 @@ func (s *Skin) placeQStr(text qstr.QStr, config TextConfig, lightnessFloor float
 		// decrease the fontsize by two points and try again
 		config.FontSize -= 2
 
-		s.context.LoadFontFace(config.Font, config.FontSize)
+		s.setFontFace(config.Font, config.FontSize)
 		w, _ = s.context.MeasureString(stripped)
 	}
 
