@@ -46,5 +46,6 @@ func main() {
 
 		DefaultSkin.Render(pd, fmt.Sprintf("%d.png", pid))
 		ArcherSkin.Render(pd, fmt.Sprintf("%d_archer.png", pid))
+		MinimalSkin.Render(pd, fmt.Sprintf("%d_minimal.png", pid))
 	}
 }
