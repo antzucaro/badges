@@ -54,7 +54,7 @@ type SkinParams struct {
 	NoStatsConfig      TextConfig
 	GameTypeConfig     []TextConfig
 	EloConfig          []TextConfig
-	RankConfig         TextConfig
+	RankConfig         []TextConfig
 	WinPctLabelConfig  TextConfig
 	WinPctConfig       TextConfig
 	WinConfig          TextConfig
@@ -244,14 +244,11 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	}
 
 	// Ranks for those game types
-	rankPositions := []Position{{100.0, 60.0}, {195.0, 60.0}, {290.0, 60.0}}
-	for i, pos := range rankPositions {
-		s.Params.RankConfig.Pos = pos
+	for i, textConfig := range s.Params.RankConfig {
 		if i < len(pd.Ranks) {
-			s.placeText(fmt.Sprintf("Rank %d of %d", pd.Ranks[i].Rank, pd.Ranks[i].MaxRank),
-				s.Params.RankConfig)
+			s.placeText(fmt.Sprintf("Rank %d of %d", pd.Ranks[i].Rank, pd.Ranks[i].MaxRank), textConfig)
 		} else {
-			s.placeText("(preliminary)", s.Params.RankConfig)
+			s.placeText("(preliminary)", textConfig)
 		}
 	}
 
@@ -356,12 +353,28 @@ var ArcherSkin = Skin{
 				Align:    "center",
 			},
 		},
-		RankConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 8,
-			Pos:      Position{X: 101.0, Y: 58.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
-			Align:    "center",
+		RankConfig: []TextConfig{
+			{
+				Font:     "fonts/xolonium.ttf",
+				FontSize: 8,
+				Pos:      Position{X: 100.0, Y: 60.0},
+				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
+				Align:    "center",
+			},
+			{
+				Font:     "fonts/xolonium.ttf",
+				FontSize: 8,
+				Pos:      Position{X: 195.0, Y: 60.0},
+				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
+				Align:    "center",
+			},
+			{
+				Font:     "fonts/xolonium.ttf",
+				FontSize: 8,
+				Pos:      Position{X: 290.0, Y: 60.0},
+				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
+				Align:    "center",
+			},
 		},
 		WinPctLabelConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
@@ -430,7 +443,7 @@ var ArcherSkin = Skin{
 	},
 }
 
-// The "Archer" skin theme
+// The "Default" skin theme
 var DefaultSkin = Skin{
 	Name: "default",
 	Params: SkinParams{
@@ -447,6 +460,13 @@ var DefaultSkin = Skin{
 			Pos:      Position{X: 53.0, Y: 20.0},
 			Color:    []qstr.RGBColor{{0.5, 0.5, 0.5}},
 			MaxWidth: 270,
+		},
+		NoStatsConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 12,
+			Pos:      Position{X: 101.0, Y: 59.0},
+			Color:    []qstr.RGBColor{{0.8, 0.2, 0.1}},
+			Angle:    -10,
 		},
 		GameTypeConfig: []TextConfig{
 			{
@@ -474,13 +494,6 @@ var DefaultSkin = Skin{
 				Align:    "center",
 			},
 		},
-		NoStatsConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 12,
-			Pos:      Position{X: 101.0, Y: 59.0},
-			Color:    []qstr.RGBColor{{0.8, 0.2, 0.1}},
-			Angle:    -10,
-		},
 		EloConfig: []TextConfig{
 			{
 				Font:     "fonts/xolonium.ttf",
@@ -504,12 +517,28 @@ var DefaultSkin = Skin{
 				Align:    "center",
 			},
 		},
-		RankConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 8,
-			Pos:      Position{X: 101.0, Y: 58.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
-			Align:    "center",
+		RankConfig: []TextConfig{
+			{
+				Font:     "fonts/xolonium.ttf",
+				FontSize: 8,
+				Pos:      Position{X: 100.0, Y: 60.0},
+				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
+				Align:    "center",
+			},
+			{
+				Font:     "fonts/xolonium.ttf",
+				FontSize: 8,
+				Pos:      Position{X: 195.0, Y: 60.0},
+				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
+				Align:    "center",
+			},
+			{
+				Font:     "fonts/xolonium.ttf",
+				FontSize: 8,
+				Pos:      Position{X: 290.0, Y: 60.0},
+				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
+				Align:    "center",
+			},
 		},
 		WinPctLabelConfig: TextConfig{
 			Font:     "fonts/xolonium.ttf",
@@ -578,7 +607,7 @@ var DefaultSkin = Skin{
 	},
 }
 
-// The "Archer" skin theme
+// The "Minimal" skin theme
 var MinimalSkin = Skin{
 	Name: "minimal",
 	Params: SkinParams{
@@ -593,6 +622,13 @@ var MinimalSkin = Skin{
 			FontSize: 22,
 			Pos:      Position{X: 36.0, Y: 17.0},
 			MaxWidth: 280,
+		},
+		NoStatsConfig: TextConfig{
+			Font:     "fonts/xolonium.ttf",
+			FontSize: 12,
+			Pos:      Position{X: 101.0, Y: 59.0},
+			Color:    []qstr.RGBColor{{0.8, 0.2, 0.1}},
+			Angle:    -10,
 		},
 		GameTypeConfig: []TextConfig{
 			{
@@ -615,13 +651,6 @@ var MinimalSkin = Skin{
 				Width:    94,
 				Align:    "center",
 			},
-		},
-		NoStatsConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 12,
-			Pos:      Position{X: 101.0, Y: 59.0},
-			Color:    []qstr.RGBColor{{0.8, 0.2, 0.1}},
-			Angle:    -10,
 		},
 		EloConfig: []TextConfig{
 			{
