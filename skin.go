@@ -110,7 +110,6 @@ func (s *Skin) placeText(text string, config TextConfig) {
 	} else if config.Align == "right" {
 		s.context.DrawStringAnchored(text, config.Pos.X, config.Pos.Y, 1, 0.5)
 	}
-
 }
 
 // placeQStr does the same thing as placeText does, but with potentially
@@ -150,6 +149,52 @@ func (s *Skin) placeQStr(text qstr.QStr, config TextConfig, lightnessFloor float
 // String representation of a Skin
 func (s *Skin) String() string {
 	return s.Name
+}
+
+func (s *Skin) ShadeKDRatio(kdRatio float64, hiColor, midColor, loColor *qstr.RGBColor) qstr.RGBColor {
+	var nr float64
+	var c1, c2 *qstr.RGBColor
+	if kdRatio >= 1.0 {
+		nr = kdRatio - 1.0
+		if nr > 1 {
+			nr = 1.0
+		}
+		c1 = hiColor
+		c2 = midColor
+	} else {
+		nr = kdRatio
+		c1 = midColor
+		c2 = loColor
+	}
+
+	// shade the KDRatio according to how good it is
+	r := nr*c1.R + (1-nr)*c2.R
+	g := nr*c1.G + (1-nr)*c2.G
+	b := nr*c1.B + (1-nr)*c2.B
+
+	return qstr.RGBColor{r, g, b}
+}
+
+func (s *Skin) ShadeWinPct(winPct float64, hiColor, midColor, loColor *qstr.RGBColor) qstr.RGBColor {
+	var nr float64
+	var c1, c2 *qstr.RGBColor
+
+	if winPct > 50.0 {
+		nr = 2 * (winPct/100 - 0.5)
+		c1 = &s.Params.WinPctConfig.Color[0]
+		c2 = &s.Params.WinPctConfig.Color[1]
+	} else {
+		nr = 2 * (winPct / 100)
+		c1 = &s.Params.WinPctConfig.Color[1]
+		c2 = &s.Params.WinPctConfig.Color[2]
+	}
+
+	// shade the WinPct according to how good it is
+	r := nr*c1.R + (1-nr)*c2.R
+	g := nr*c1.G + (1-nr)*c2.G
+	b := nr*c1.B + (1-nr)*c2.B
+
+	return qstr.RGBColor{r, g, b}
 }
 
 // Render the provided PlayerData using this Skin
@@ -207,7 +252,8 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	for i, pos := range rankPositions {
 		s.Params.RankConfig.Pos = pos
 		if i < len(pd.Ranks) {
-			s.placeText(fmt.Sprintf("Rank %d of %d", pd.Ranks[i].Rank, pd.Ranks[i].MaxRank), s.Params.RankConfig)
+			s.placeText(fmt.Sprintf("Rank %d of %d", pd.Ranks[i].Rank, pd.Ranks[i].MaxRank),
+				s.Params.RankConfig)
 		} else {
 			s.placeText("(preliminary)", s.Params.RankConfig)
 		}
@@ -216,30 +262,10 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	// Kill Ratio and its details
 	s.placeText("Kill Ratio", s.Params.KDRatioLabelConfig)
 
-	var nr float64
-	var c1, c2 *qstr.RGBColor
-
 	kdRatio := pd.KDRatio()
-	if kdRatio >= 1.0 {
-		nr = kdRatio - 1.0
-		if nr > 1 {
-			nr = 1.0
-		}
-		c1 = &s.Params.KDRatio.Color[0]
-		c2 = &s.Params.KDRatio.Color[1]
-	} else {
-		nr = kdRatio
-		c1 = &s.Params.KDRatio.Color[1]
-		c2 = &s.Params.KDRatio.Color[2]
-	}
-
-	// shade the KDRatio according to how good it is
-	r := nr*c1.R + (1-nr)*c2.R
-	g := nr*c1.G + (1-nr)*c2.G
-	b := nr*c1.B + (1-nr)*c2.B
-
-	s.Params.KDRatio.Color[0] = qstr.RGBColor{r, g, b}
-	s.placeText(fmt.Sprintf("%.3f", pd.KDRatio()), s.Params.KDRatio)
+	s.Params.KDRatio.Color[0] = s.ShadeKDRatio(kdRatio, &s.Params.KDRatio.Color[0], &s.Params.KDRatio.Color[1],
+		&s.Params.KDRatio.Color[2])
+	s.placeText(fmt.Sprintf("%.3f", kdRatio), s.Params.KDRatio)
 
 	s.placeText(fmt.Sprintf("%d kills", pd.Kills), s.Params.KillsConfig)
 	s.placeText(fmt.Sprintf("%d deaths", pd.Deaths), s.Params.DeathsConfig)
@@ -248,23 +274,9 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	s.placeText("Win Percentage", s.Params.WinPctLabelConfig)
 
 	winPct := pd.WinPct()
-	if winPct > 50.0 {
-		nr = 2 * (winPct/100 - 0.5)
-		c1 = &s.Params.WinPctConfig.Color[0]
-		c2 = &s.Params.WinPctConfig.Color[1]
-	} else {
-		nr = 2 * (winPct / 100)
-		c1 = &s.Params.WinPctConfig.Color[1]
-		c2 = &s.Params.WinPctConfig.Color[2]
-	}
-
-	// shade the WinPct according to how good it is
-	r = nr*c1.R + (1-nr)*c2.R
-	g = nr*c1.G + (1-nr)*c2.G
-	b = nr*c1.B + (1-nr)*c2.B
-
-	s.Params.WinPctConfig.Color[0] = qstr.RGBColor{r, g, b}
-	s.placeText(fmt.Sprintf("%.2f%%", pd.WinPct()), s.Params.WinPctConfig)
+	s.Params.WinPctConfig.Color[0] = s.ShadeWinPct(winPct, &s.Params.WinPctConfig.Color[0],
+		&s.Params.WinPctConfig.Color[1], &s.Params.WinPctConfig.Color[2])
+	s.placeText(fmt.Sprintf("%.2f%%", winPct), s.Params.WinPctConfig)
 	s.placeText(fmt.Sprintf("%d wins", pd.Wins), s.Params.WinConfig)
 	s.placeText(fmt.Sprintf("%d losses", pd.Losses), s.Params.LossConfig)
 
