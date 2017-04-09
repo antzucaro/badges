@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/antzucaro/badges/config"
 	"log"
+	"os"
 )
 
 func main() {
@@ -37,15 +38,23 @@ func main() {
 		pids = []int{*pid}
 	}
 
+	skins := LoadSkins("skins")
+	for name := range skins {
+		err := os.MkdirAll(fmt.Sprintf("output/%s", name), os.FileMode(0755))
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
 	for _, pid := range pids {
 		pd, err := pp.GetPlayerData(pid)
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("Rendering images for player #%d\n", pid)
 
-		DefaultSkin.Render(pd, fmt.Sprintf("%d.png", pid))
-		ArcherSkin.Render(pd, fmt.Sprintf("%d_archer.png", pid))
-		MinimalSkin.Render(pd, fmt.Sprintf("%d_minimal.png", pid))
+		fmt.Printf("Rendering images for player #%d\n", pid)
+		for name, skin := range skins {
+			skin.Render(pd, fmt.Sprintf("output/%s/%d.png", name, pid))
+		}
 	}
 }

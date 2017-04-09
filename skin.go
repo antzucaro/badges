@@ -1,12 +1,15 @@
 package main
 
 import (
+	"path/filepath"
+	"encoding/json"
 	"fmt"
 	"github.com/antzucaro/qstr"
 	"github.com/fogleman/gg"
 	"golang.org/x/image/font"
+	"io/ioutil"
 	"math"
-	"path/filepath"
+	"strings"
 )
 
 // Position is an (x,y) coordinate
@@ -279,436 +282,33 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	s.context.SavePNG(filename)
 }
 
-// The "Archer" skin theme
-var ArcherSkin = Skin{
-	Name: "archer",
-	Params: SkinParams{
-		Background:      "images/background_archer-v3.png",
-		BackgroundColor: qstr.RGBColor{0.00, 0.00, 0.00},
-		Overlay:         "",
-		Font:            "Xolonium",
-		Width:           560,
-		Height:          70,
-		NumGameTypes:    3,
-		NickConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 22,
-			Pos:      Position{X: 53.0, Y: 20.0},
-			Color:    []qstr.RGBColor{{0.5, 0.5, 0.5}},
-			MaxWidth: 270,
-		},
-		GameTypeConfig: []TextConfig{
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 100.0, Y: 35.0},
-				Color:    []qstr.RGBColor{{0.9, 0.9, 0.9}},
-				Width:    94,
-				Align:    "center",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 195.0, Y: 35.0},
-				Color:    []qstr.RGBColor{{0.9, 0.9, 0.9}},
-				Width:    94,
-				Align:    "center",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 290.0, Y: 35.0},
-				Color:    []qstr.RGBColor{{0.9, 0.9, 0.9}},
-				Width:    94,
-				Align:    "center",
-			},
-		},
-		NoStatsConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 12,
-			Pos:      Position{X: 101.0, Y: 59.0},
-			Color:    []qstr.RGBColor{{0.8, 0.2, 0.1}},
-			Angle:    -10,
-		},
-		EloConfig: []TextConfig{
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 100.0, Y: 50.0},
-				Color:    []qstr.RGBColor{{1.0, 1.0, 0.5}},
-				Align:    "center",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 195.0, Y: 50.0},
-				Color:    []qstr.RGBColor{{1.0, 1.0, 0.5}},
-				Align:    "center",
-			},
-						{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 290.0, Y: 50.0},
-				Color:    []qstr.RGBColor{{1.0, 1.0, 0.5}},
-				Align:    "center",
-			},
-		},
-		RankConfig: []TextConfig{
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 8,
-				Pos:      Position{X: 100.0, Y: 60.0},
-				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
-				Align:    "center",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 8,
-				Pos:      Position{X: 195.0, Y: 60.0},
-				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
-				Align:    "center",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 8,
-				Pos:      Position{X: 290.0, Y: 60.0},
-				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
-				Align:    "center",
-			},
-		},
-		WinPctLabelConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 10,
-			Pos:      Position{X: 508.0, Y: 5.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 0.8}},
-			Align:    "center",
-		},
-		WinPctConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 15,
-			Pos:      Position{X: 509.0, Y: 21.0},
-			Color:    []qstr.RGBColor{{0.2, 1.0, 1.0}, {0.4, 0.8, 0.4}, {1.0, 1.0, 0.2}},
-			Align:    "center",
-		},
-		WinConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 9,
-			Pos:      Position{X: 508.0, Y: 34.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 0.6}},
-			Align:    "center",
-		},
-		LossConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 9,
-			Pos:      Position{X: 508.0, Y: 44.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 0.6}},
-			Align:    "center",
-		},
-		KDRatioLabelConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 10,
-			Pos:      Position{X: 390.0, Y: 5.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 0.8}},
-			Width:    102,
-			Align:    "center",
-		},
-		KDRatio: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 15,
-			Pos:      Position{X: 392.0, Y: 21.0},
-			Color:    []qstr.RGBColor{{0.2, 1.0, 0.2}, {0.8, 0.8, 0.4}, {1.0, 0.2, 0.2}},
-			Align:    "center",
-		},
-		KillsConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 9,
-			Pos:      Position{X: 392.0, Y: 34.0},
-			Color:    []qstr.RGBColor{{0.6, 0.8, 0.6}},
-			Align:    "center",
-		},
-		DeathsConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 9,
-			Pos:      Position{X: 392.0, Y: 44.0},
-			Color:    []qstr.RGBColor{{0.8, 0.6, 0.6}},
-			Align:    "center",
-		},
-		PlayingTimeConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 10,
-			Pos:      Position{X: 451.0, Y: 61.0},
-			Color:    []qstr.RGBColor{{0.1, 0.1, 0.1}},
-			Align:    "center",
-		},
-	},
-}
+// LoadSkins loads up skin parameters from JSON files in dir, then constructs Skins from them
+func LoadSkins(dir string) map[string]Skin {
+	skins := make(map[string]Skin, 0)
 
-// The "Default" skin theme
-var DefaultSkin = Skin{
-	Name: "default",
-	Params: SkinParams{
-		Background:      "images/broken_noise.png",
-		BackgroundColor: qstr.RGBColor{0.00, 0.00, 0.00},
-		Overlay:         "images/overlay_classic.png",
-		Font:            "Xolonium",
-		Width:           560,
-		Height:          70,
-		NumGameTypes:    3,
-		NickConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 22,
-			Pos:      Position{X: 53.0, Y: 20.0},
-			Color:    []qstr.RGBColor{{0.5, 0.5, 0.5}},
-			MaxWidth: 270,
-		},
-		NoStatsConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 12,
-			Pos:      Position{X: 101.0, Y: 59.0},
-			Color:    []qstr.RGBColor{{0.8, 0.2, 0.1}},
-			Angle:    -10,
-		},
-		GameTypeConfig: []TextConfig{
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 100.0, Y: 35.0},
-				Color:    []qstr.RGBColor{{0.9, 0.9, 0.9}},
-				Width:    94,
-				Align:    "center",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 195.0, Y: 35.0},
-				Color:    []qstr.RGBColor{{0.9, 0.9, 0.9}},
-				Width:    94,
-				Align:    "center",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 290.0, Y: 35.0},
-				Color:    []qstr.RGBColor{{0.9, 0.9, 0.9}},
-				Width:    94,
-				Align:    "center",
-			},
-		},
-		EloConfig: []TextConfig{
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 100.0, Y: 50.0},
-				Color:    []qstr.RGBColor{{1.0, 1.0, 0.5}},
-				Align:    "center",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 195.0, Y: 50.0},
-				Color:    []qstr.RGBColor{{1.0, 1.0, 0.5}},
-				Align:    "center",
-			},
-						{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 290.0, Y: 50.0},
-				Color:    []qstr.RGBColor{{1.0, 1.0, 0.5}},
-				Align:    "center",
-			},
-		},
-		RankConfig: []TextConfig{
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 8,
-				Pos:      Position{X: 100.0, Y: 60.0},
-				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
-				Align:    "center",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 8,
-				Pos:      Position{X: 195.0, Y: 60.0},
-				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
-				Align:    "center",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 8,
-				Pos:      Position{X: 290.0, Y: 60.0},
-				Color:    []qstr.RGBColor{{0.8, 0.8, 1.0}},
-				Align:    "center",
-			},
-		},
-		WinPctLabelConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 10,
-			Pos:      Position{X: 508.0, Y: 5.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 0.8}},
-			Align:    "center",
-		},
-		WinPctConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 15,
-			Pos:      Position{X: 509.0, Y: 21.0},
-			Color:    []qstr.RGBColor{{0.2, 1.0, 1.0}, {0.4, 0.8, 0.4}, {1.0, 1.0, 0.2}},
-			Align:    "center",
-		},
-		WinConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 9,
-			Pos:      Position{X: 508.0, Y: 34.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 0.6}},
-			Align:    "center",
-		},
-		LossConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 9,
-			Pos:      Position{X: 508.0, Y: 44.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 0.6}},
-			Align:    "center",
-		},
-		KDRatioLabelConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 10,
-			Pos:      Position{X: 390.0, Y: 5.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 0.8}},
-			Width:    102,
-			Align:    "center",
-		},
-		KDRatio: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 15,
-			Pos:      Position{X: 392.0, Y: 21.0},
-			Color:    []qstr.RGBColor{{0.2, 1.0, 0.2}, {0.8, 0.8, 0.4}, {1.0, 0.2, 0.2}},
-			Align:    "center",
-		},
-		KillsConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 9,
-			Pos:      Position{X: 392.0, Y: 34.0},
-			Color:    []qstr.RGBColor{{0.6, 0.8, 0.6}},
-			Align:    "center",
-		},
-		DeathsConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 9,
-			Pos:      Position{X: 392.0, Y: 44.0},
-			Color:    []qstr.RGBColor{{0.8, 0.6, 0.6}},
-			Align:    "center",
-		},
-		PlayingTimeConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 10,
-			Pos:      Position{X: 451.0, Y: 61.0},
-			Color:    []qstr.RGBColor{{0.1, 0.1, 0.1}},
-			Align:    "center",
-		},
-	},
-}
+	jsonFiles, err := filepath.Glob(fmt.Sprintf("%s/*json", dir))
+	if err != nil {
+		return skins
+	}
 
-// The "Minimal" skin theme
-var MinimalSkin = Skin{
-	Name: "minimal",
-	Params: SkinParams{
-		BackgroundColor: qstr.RGBColor{0.04, 0.04, 0.04},
-		Overlay:         "images/overlay_minimal.png",
-		Font:            "Xolonium",
-		Width:           560,
-		Height:          40,
-		NumGameTypes:    3,
-		NickConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 22,
-			Pos:      Position{X: 36.0, Y: 17.0},
-			MaxWidth: 280,
-		},
-		NoStatsConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 12,
-			Pos:      Position{X: 101.0, Y: 59.0},
-			Color:    []qstr.RGBColor{{0.8, 0.2, 0.1}},
-			Angle:    -10,
-		},
-		GameTypeConfig: []TextConfig{
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 69.0, Y: 31.0},
-				Color:    []qstr.RGBColor{{0.9, 0.9, 0.9}},
-				Align:    "right",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 169.0, Y: 31.0},
-				Color:    []qstr.RGBColor{{0.9, 0.9, 0.9}},
-				Align:    "right",
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 269.0, Y: 31.0},
-				Color:    []qstr.RGBColor{{0.9, 0.9, 0.9}},
-				Width:    94,
-				Align:    "right",
-			},
-		},
-		EloConfig: []TextConfig{
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 75.0, Y: 36.0},
-				Color:    []qstr.RGBColor{{1.0, 1.0, 0.5}},
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 175.0, Y: 36.0},
-				Color:    []qstr.RGBColor{{1.0, 1.0, 0.5}},
-			},
-			{
-				Font:     "fonts/xolonium.ttf",
-				FontSize: 10,
-				Pos:      Position{X: 275.0, Y: 36.0},
-				Color:    []qstr.RGBColor{{1.0, 1.0, 0.5}},
-			},
-		},
-		WinPctLabelConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 10,
-			Pos:      Position{X: 508.0, Y: 5.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 0.8}},
-			Align:    "center",
-		},
-		WinPctConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 15,
-			Pos:      Position{X: 509.0, Y: 15.0},
-			Color:    []qstr.RGBColor{{0.6, 0.8, 0.8}, {0.6, 0.6, 0.6}, {0.8, 0.8, 0.6}},
-			Align:    "center",
-		},
-		KDRatioLabelConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 10,
-			Pos:      Position{X: 392.0, Y: 5.0},
-			Color:    []qstr.RGBColor{{0.8, 0.8, 0.8}},
-			Width:    102,
-			Align:    "center",
-		},
-		KDRatio: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 15,
-			Pos:      Position{X: 392.0, Y: 15.0},
-			Color:    []qstr.RGBColor{{0.6, 0.8, 0.6}, {0.6, 0.6, 0.6}, {0.8, 0.6, 0.6}},
-			Align:    "center",
-		},
-		PlayingTimeConfig: TextConfig{
-			Font:     "fonts/xolonium.ttf",
-			FontSize: 10,
-			Pos:      Position{X: 451.0, Y: 31.0},
-			Color:    []qstr.RGBColor{{0.7, 0.7, 0.7}},
-			Align:    "center",
-		},
-	},
+	for _, fileName := range jsonFiles {
+		jsonFile, err := ioutil.ReadFile(fileName)
+		if err != nil {
+			continue
+		}
+		var s Skin
+		err = json.Unmarshal(jsonFile, &s.Params)
+		if err != nil {
+			continue
+		}
+
+		// "skins/default.json" -> "default"
+		base := filepath.Base(fileName)
+		name := base[0:strings.Index(base, ".json")]
+		s.Name = name
+
+		skins[name] = s
+	}
+
+	return skins
 }
