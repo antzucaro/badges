@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"github.com/antzucaro/qstr"
@@ -53,63 +54,41 @@ func (pd *PlayerData) WinPct() float64 {
 	}
 }
 
-// fmtInt formats v into the tail of buf.
-// It returns the index where the output begins.
-// Modified from https://golang.org/src/time/time.go?s=15202:15235#L462
-func fmtInt(buf []byte, v uint64) int {
-	w := len(buf)
-	if v == 0 {
-		w--
-		buf[w] = '0'
-	} else {
-		for v > 0 {
-			w--
-			buf[w] = byte(v%10) + '0'
-			v /= 10
-		}
-	}
-	return w
-}
-
 // DurationString creates a human-readable duration string with a days component.
-// Modified from https://golang.org/src/time/time.go?s=15202:15235#L462
 func DurationString(d time.Duration) string {
-	// Largest time is 2540400h10m10.000000000s
-	var buf [32]byte
+	minutes := uint64(d.Minutes())
+	days := uint64(minutes /1440)
+	minutes -= days * 1440
+	hours := uint64(minutes /60)
+	minutes -= hours * 60
 
-	w := len(buf)
-	u := uint64(d.Minutes())
-
-	// u is now integer minutes
-	if u > 0 {
-		for _, v := range "snim " {
-			w--
-			buf[w] = byte(v)
-		}
-		w = fmtInt(buf[:w], u%60)
-		u /= 60
-
-		// u is now integer hours
-		if u > 0 {
-			for _, v := range " srh " {
-				w--
-				buf[w] = byte(v)
-			}
-			w = fmtInt(buf[:w], u%24)
-			u /= 24
-
-			// u is now integer days
-			if u > 0 {
-				for _, v := range " syad " {
-					w--
-					buf[w] = byte(v)
-				}
-				w = fmtInt(buf[:w], u)
-			}
-		}
+	var buffer bytes.Buffer
+	if days == 1 {
+		buffer.WriteString("1 day")
+	} else if days > 1 {
+		buffer.WriteString(fmt.Sprintf("%d days", days))
 	}
 
-	return string(buf[w:])
+	if hours >= 1 && days >=1 {
+		buffer.WriteString(", ")
+	}
+
+	if hours == 1 {
+		buffer.WriteString("1 hr")
+	} else if hours > 1 {
+		buffer.WriteString(fmt.Sprintf("%d hrs", hours))
+	}
+
+	if minutes >= 1 && hours >=1 {
+		buffer.WriteString(", ")
+	}
+
+	if minutes == 1 {
+		buffer.WriteString("1 min")
+	} else if minutes > 1 {
+		buffer.WriteString(fmt.Sprintf("%d mins", minutes))
+	}
+	return buffer.String()
 }
 
 // PlayingTime constructs a human-readable duration string with a day component.
