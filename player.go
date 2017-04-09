@@ -53,6 +53,110 @@ func (pd *PlayerData) WinPct() float64 {
 	}
 }
 
+// fmtFrac formats the fraction of v/10**prec (e.g., ".12345") into the
+// tail of buf, omitting trailing zeros.  it omits the decimal
+// point too when the fraction is 0.  It returns the index where the
+// output bytes begin and the value v/10**prec.
+// Modified from https://golang.org/src/time/time.go?s=15202:15235#L462
+func fmtFrac(buf []byte, v uint64, prec int) (nw int, nv uint64) {
+	// Omit trailing zeros up to and including decimal point.
+	w := len(buf)
+
+	print := false
+	for i := 0; i < prec; i++ {
+		digit := v % 10
+		print = print || digit != 0
+		if print {
+			w--
+			buf[w] = byte(digit) + '0'
+		}
+		v /= 10
+	}
+
+	if print {
+		w--
+		buf[w] = '.'
+	}
+	return w, v
+}
+
+// fmtInt formats v into the tail of buf.
+// It returns the index where the output begins.
+// Modified from https://golang.org/src/time/time.go?s=15202:15235#L462
+func fmtInt(buf []byte, v uint64) int {
+	w := len(buf)
+	if v == 0 {
+		w--
+		buf[w] = '0'
+	} else {
+		for v > 0 {
+			w--
+			buf[w] = byte(v%10) + '0'
+			v /= 10
+		}
+	}
+	return w
+}
+
+// DurationString creates a human-readable duration string with a days component.
+// Modified from https://golang.org/src/time/time.go?s=15202:15235#L462
+func DurationString(d time.Duration) string {
+	// Largest time is 2540400h10m10.000000000s
+	var buf [32]byte
+
+	w := len(buf)
+	u := uint64(d)
+
+	neg := d < 0
+	if neg {
+		u = -u
+	}
+
+	w--
+	buf[w] = 's'
+	w, u = fmtFrac(buf[:w], u, 9)
+
+	// u is now integer seconds
+	w = fmtInt(buf[:w], u%60)
+	u /= 60
+
+	// u is now integer minutes
+	if u > 0 {
+		w--
+		buf[w] = 'm'
+		w = fmtInt(buf[:w], u%60)
+		u /= 60
+		// u is now integer hours
+
+		// Stop at hours because days can be different lengths.
+		if u > 0 {
+			w--
+			buf[w] = 'h'
+			w = fmtInt(buf[:w], u%24)
+			u /= 24
+
+			// u is now integer days
+			if u > 0 {
+				w--
+				buf[w] = 'd'
+				w = fmtInt(buf[:w], u)
+			}
+		}
+	}
+
+	if neg {
+		w--
+		buf[w] = '-'
+	}
+
+	return string(buf[w:])
+}
+
+// PlayingTime constructs a human-readable duration string with a day component.
+func (pd *PlayerData) PlayingTimeString() string {
+	return DurationString(pd.PlayingTime)
+}
+
 // PlayerDataFetcher fetches player information from the database
 type PlayerDataFetcher struct {
 	db *sql.DB

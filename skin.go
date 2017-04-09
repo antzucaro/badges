@@ -277,7 +277,7 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	s.placeText(fmt.Sprintf("%d losses", pd.Losses), s.Params.LossConfig)
 
 	// Playing time
-	s.placeText(fmt.Sprintf("Playing Time: %s", pd.PlayingTime), s.Params.PlayingTimeConfig)
+	s.placeText(fmt.Sprintf("Playing Time: %s", pd.PlayingTimeString()), s.Params.PlayingTimeConfig)
 
 	s.context.SavePNG(filename)
 }
