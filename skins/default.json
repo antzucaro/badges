@@ -11,7 +11,7 @@
   "Height": 70,
   "NumGameTypes": 3,
   "NickConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 22,
     "Pos": {
       "X": 53,
@@ -31,7 +31,7 @@
     "Align": ""
   },
   "NoStatsConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 12,
     "Pos": {
       "X": 101,
@@ -52,7 +52,7 @@
   },
   "GameTypeConfig": [
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 100,
@@ -72,7 +72,7 @@
       "Align": "center"
     },
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 195,
@@ -92,7 +92,7 @@
       "Align": "center"
     },
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 290,
@@ -114,7 +114,7 @@
   ],
   "EloConfig": [
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 100,
@@ -134,7 +134,7 @@
       "Align": "center"
     },
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 195,
@@ -154,7 +154,7 @@
       "Align": "center"
     },
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 290,
@@ -176,7 +176,7 @@
   ],
   "RankConfig": [
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 8,
       "Pos": {
         "X": 100,
@@ -196,7 +196,7 @@
       "Align": "center"
     },
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 8,
       "Pos": {
         "X": 195,
@@ -216,7 +216,7 @@
       "Align": "center"
     },
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 8,
       "Pos": {
         "X": 290,
@@ -237,7 +237,7 @@
     }
   ],
   "WinPctLabelConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 10,
     "Pos": {
       "X": 508,
@@ -257,7 +257,7 @@
     "Align": "center"
   },
   "WinPctConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 15,
     "Pos": {
       "X": 509,
@@ -287,7 +287,7 @@
     "Align": "center"
   },
   "WinConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 9,
     "Pos": {
       "X": 508,
@@ -307,7 +307,7 @@
     "Align": "center"
   },
   "LossConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 9,
     "Pos": {
       "X": 508,
@@ -327,7 +327,7 @@
     "Align": "center"
   },
   "KDRatioLabelConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 10,
     "Pos": {
       "X": 390,
@@ -347,7 +347,7 @@
     "Align": "center"
   },
   "KDRatio": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 15,
     "Pos": {
       "X": 392,
@@ -377,7 +377,7 @@
     "Align": "center"
   },
   "KillsConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 9,
     "Pos": {
       "X": 392,
@@ -397,7 +397,7 @@
     "Align": "center"
   },
   "DeathsConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 9,
     "Pos": {
       "X": 392,
@@ -417,7 +417,7 @@
     "Align": "center"
   },
   "PlayingTimeConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 10,
     "Pos": {
       "X": 451,

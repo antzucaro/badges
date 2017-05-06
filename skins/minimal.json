@@ -11,7 +11,7 @@
   "Height": 40,
   "NumGameTypes": 3,
   "NickConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 22,
     "Pos": {
       "X": 36,
@@ -25,7 +25,7 @@
     "Align": ""
   },
   "NoStatsConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 12,
     "Pos": {
       "X": 101,
@@ -46,7 +46,7 @@
   },
   "GameTypeConfig": [
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 69,
@@ -66,7 +66,7 @@
       "Align": "right"
     },
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 169,
@@ -86,7 +86,7 @@
       "Align": "right"
     },
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 269,
@@ -108,7 +108,7 @@
   ],
   "EloConfig": [
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 75,
@@ -128,7 +128,7 @@
       "Align": ""
     },
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 175,
@@ -148,7 +148,7 @@
       "Align": ""
     },
     {
-      "Font": "fonts/xolonium.ttf",
+      "Font": "Xolonium",
       "FontSize": 10,
       "Pos": {
         "X": 275,
@@ -170,7 +170,7 @@
   ],
   "RankConfig": null,
   "WinPctLabelConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 10,
     "Pos": {
       "X": 508,
@@ -190,7 +190,7 @@
     "Align": "center"
   },
   "WinPctConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 15,
     "Pos": {
       "X": 509,
@@ -248,7 +248,7 @@
     "Align": ""
   },
   "KDRatioLabelConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 10,
     "Pos": {
       "X": 392,
@@ -268,7 +268,7 @@
     "Align": "center"
   },
   "KDRatio": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 15,
     "Pos": {
       "X": 392,
@@ -326,7 +326,7 @@
     "Align": ""
   },
   "PlayingTimeConfig": {
-    "Font": "fonts/xolonium.ttf",
+    "Font": "Xolonium",
     "FontSize": 10,
     "Pos": {
       "X": 451,
