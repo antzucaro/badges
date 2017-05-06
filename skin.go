@@ -108,7 +108,7 @@ func (c *CairoRenderer) placeText(text string, config TextConfig) {
 	} else if config.Align == "center" {
 		c.surface.MoveTo(config.Pos.X-te.Xbearing-te.Width/2, config.Pos.Y-te.Ybearing)
 	} else {
-		c.surface.MoveTo(config.Pos.X-te.Xbearing, config.Pos.Y-te.Ybearing)
+		c.surface.MoveTo(config.Pos.X-te.Xbearing-te.Width, config.Pos.Y)
 	}
 
 	c.surface.Save()
