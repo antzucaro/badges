@@ -35,7 +35,7 @@ type PlayerData struct {
 	PlayingTime  time.Duration
 }
 
-// KDRatio returns the player's Kill:Death ratio as a string
+// KDRatio returns the player'c Kill:Death ratio as a string
 func (pd *PlayerData) KDRatio() float64 {
 	if pd.Deaths > 0 {
 		return float64(pd.Kills) / float64(pd.Deaths)
@@ -44,7 +44,7 @@ func (pd *PlayerData) KDRatio() float64 {
 	}
 }
 
-// WinPct returns the player's win percentage as a string
+// WinPct returns the player'c win percentage as a string
 func (pd *PlayerData) WinPct() float64 {
 	totalGames := pd.Wins + pd.Losses
 	if totalGames > 0 {

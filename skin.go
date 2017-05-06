@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/antzucaro/qstr"
-	"github.com/fogleman/gg"
-	"golang.org/x/image/font"
 	"io/ioutil"
 	"math"
 	"strings"
+	"github.com/ungerik/go-cairo"
 )
 
 // Position is an (x,y) coordinate
@@ -69,69 +68,74 @@ type SkinParams struct {
 	PlayingTimeConfig  TextConfig
 }
 
-// Skin represents the look and feel of a XonStat badge
-type Skin struct {
-	Name      string
-	Params    SkinParams
-	context   *gg.Context
-	fontCache map[string]font.Face
+// Renderer is what actually places the graphical elements on the canvas
+type Renderer interface {
+	placeText(text string, config TextConfig)
+	placeQStr(text qstr.QStr, config TextConfig, lightnessFloor float64, lightnessCeiling float64)
 }
 
-// setFontFace loads a font either from the cache or from the filesystem
-func (s *Skin) setFontFace(path string, points float64) error {
-	// do we even have a cache yet?
-	if len(s.fontCache) == 0 {
-		s.fontCache = make(map[string]font.Face)
-	}
+// CairoRenderer is a Renderer that uses the cairo C library under the hood.
+type CairoRenderer struct {
+	surface   *cairo.Surface
+}
 
-	_, file := filepath.Split(path)
-	key := fmt.Sprintf("%s %f", file, points)
-	if ff, ok := s.fontCache[key]; ok {
-		s.context.SetFontFace(ff)
-		return nil
+// setFont sets the font properties on a surface
+func (c *CairoRenderer) setFont(config TextConfig) error {
+	var color qstr.RGBColor
+	if len(config.Color) == 0 {
+		color = qstr.RGBColor{1.0, 1.0, 1.0}
 	} else {
-		ff, err := gg.LoadFontFace(path, points)
-		if err != nil {
-			return err
-		} else {
-			s.context.SetFontFace(ff)
-			s.fontCache[key] = ff
-			return nil
-		}
+		color = config.Color[0]
 	}
+	c.surface.SelectFontFace(config.Font, cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+	c.surface.SetFontSize(config.FontSize)
+	c.surface.SetSourceRGB(color.R, color.G, color.B)
+	return nil
 }
 
 // placeText "writes" text on the drawing canvas
-func (s *Skin) placeText(text string, config TextConfig) {
+func (c *CairoRenderer) placeText(text string, config TextConfig) {
 	if config.FontSize == 0 {
 		return
 	}
 
-	s.setFontFace(config.Font, config.FontSize)
+	c.setFont(config)
 
-	s.context.SetRGB(config.Color[0].R, config.Color[0].G, config.Color[0].B)
-	if config.Align == "" {
-		s.context.DrawString(text, config.Pos.X, config.Pos.Y)
+	te := c.surface.TextExtents(text)
+
+	if config.Align == "" || config.Align == "left" {
+		c.surface.MoveTo(config.Pos.X-te.Xbearing-te.Width, config.Pos.Y-te.Ybearing)
 	} else if config.Align == "center" {
-		s.context.DrawStringAnchored(text, config.Pos.X, config.Pos.Y, 0.5, 0.5)
-	} else if config.Align == "right" {
-		s.context.DrawStringAnchored(text, config.Pos.X, config.Pos.Y, 1, 0.5)
+		c.surface.MoveTo(config.Pos.X-te.Xbearing-te.Width/2, config.Pos.Y-te.Ybearing)
+	} else {
+		c.surface.MoveTo(config.Pos.X-te.Xbearing, config.Pos.Y-te.Ybearing)
 	}
+
+	c.surface.Save()
+
+	if config.Angle > 0 {
+		c.surface.Rotate(float64(config.Angle) * math.Pi / 180.0)
+	}
+
+	c.surface.ShowText(text)
+	c.surface.Restore()
 }
 
 // placeQStr does the same thing as placeText does, but with potentially
 // colorized QStrs
-func (s *Skin) placeQStr(text qstr.QStr, config TextConfig, lightnessFloor float64, lightnessCeiling float64) {
-	s.setFontFace(config.Font, config.FontSize)
+func (c *CairoRenderer) placeQStr(text qstr.QStr, config TextConfig, lightnessFloor float64, lightnessCeiling float64) {
+	c.setFont(config)
 
 	// shrink the nick until it fits within the allotted space
 	stripped := text.Stripped()
-	for w, _ := s.context.MeasureString(stripped); int(w) > config.MaxWidth; {
+	te := c.surface.TextExtents(stripped)
+	for te.Width > float64(config.MaxWidth) {
 		// decrease the fontsize by two points and try again
 		config.FontSize -= 2
 
-		s.setFontFace(config.Font, config.FontSize)
-		w, _ = s.context.MeasureString(stripped)
+		c.setFont(config)
+
+		te = c.surface.TextExtents(stripped)
 	}
 
 	x := config.Pos.X
@@ -144,13 +148,25 @@ func (s *Skin) placeQStr(text qstr.QStr, config TextConfig, lightnessFloor float
 			cappedColor = colorPart.Color
 		}
 
-		s.context.SetRGB(cappedColor.R, cappedColor.G, cappedColor.B)
-		s.context.DrawString(colorPart.Part, x, config.Pos.Y)
+		c.surface.SetSourceRGB(cappedColor.R, cappedColor.G, cappedColor.B)
+		c.surface.MoveTo(x-te.Xbearing-te.Width, config.Pos.Y-te.Ybearing)
+		c.surface.Save()
+		c.surface.ShowText(colorPart.Part)
+		c.surface.Restore()
 
 		// the starting point for the next part is the end of the last one
-		w, _ := s.context.MeasureString(colorPart.Part)
-		x += w
+		te := c.surface.TextExtents(colorPart.Part)
+		x += te.Width
 	}
+}
+
+// Skin represents the look and feel of a XonStat badge
+type Skin struct {
+	Name      string
+	Params    SkinParams
+
+	// TODO: this is renderer specific - build this into the interface?
+	CairoRenderer
 }
 
 // String representation of a Skin
@@ -206,40 +222,40 @@ func (s *Skin) ShadeWinPct(winPct float64, hiColor, midColor, loColor *qstr.RGBC
 
 // Render the provided PlayerData using this Skin
 func (s *Skin) Render(pd *PlayerData, filename string) {
-	s.context = gg.NewContext(s.Params.Width, s.Params.Height)
+	// TODO: this is renderer specific - build this into the interface?
+	s.surface = cairo.NewSurface(cairo.FORMAT_ARGB32, s.Params.Width, s.Params.Height)
 
 	// load the background
 	if s.Params.Background != "" {
-		bg, err := gg.LoadPNG(s.Params.Background)
+		bg, _ := cairo.NewSurfaceFromPNG(s.Params.Background)
 
-		// the background can be a small image that can be repeated (tiled)
-		bgW := bg.Bounds().Size().X
-		bgH := bg.Bounds().Size().Y
-		if err != nil {
-			panic(err)
-		}
+		bgW := bg.GetWidth()
+		bgH := bg.GetHeight()
 
-		repeatX := int(math.Ceil(float64(s.Params.Width) / float64(bgW)))
-		repeatY := int(math.Ceil(float64(s.Params.Height) / float64(bgH)))
-		for i := 0; i < repeatX; i++ {
-			for j := 0; j < repeatY; j++ {
-				s.context.DrawImage(bg, bgW*i, bgH*j)
+		bgX := 0
+		bgY := 0
+		for bgX < s.Params.Width {
+			bgY = 0
+			for bgY < s.Params.Height {
+				s.surface.SetSourceSurface(bg, float64(bgX), float64(bgY))
+				s.surface.Paint()
+				bgY += bgH
 			}
+			bgX += bgW
 		}
 	}
 
 	// load the overlay
 	if s.Params.Overlay != "" {
-		overlay, err := gg.LoadPNG(s.Params.Overlay)
-		if err != nil {
-			panic(err)
-		}
-		s.context.DrawImage(overlay, 0, 0)
+		overlay, _ := cairo.NewSurfaceFromPNG(s.Params.Overlay)
+		s.surface.SetSourceSurface(overlay, 0.0, 0.0)
+		s.surface.Paint()
 	}
 
 	// Nick
 	s.placeQStr(pd.Nick, s.Params.NickConfig, 0.4, 1)
 
+	/*
 	// Game type labels along with Elos for those game types
 	for i, elo := range pd.Elos {
 		s.placeText(elo.GameType, s.Params.GameTypeConfig[i])
@@ -277,28 +293,34 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	s.placeText(fmt.Sprintf("%d losses", pd.Losses), s.Params.LossConfig)
 
 	// Playing time
-	s.placeText(fmt.Sprintf("Playing Time: %s", pd.PlayingTimeString()), s.Params.PlayingTimeConfig)
+	s.placeText(fmt.Sprintf("Playing Time: %c", pd.PlayingTimeString()), s.Params.PlayingTimeConfig)
+	*/
+	s.surface.WriteToPNG(filename)
+	s.surface.Finish()
 
-	s.context.SavePNG(filename)
 }
 
 // LoadSkins loads up skin parameters from JSON files in dir, then constructs Skins from them
 func LoadSkins(dir string) map[string]Skin {
 	skins := make(map[string]Skin, 0)
 
-	jsonFiles, err := filepath.Glob(fmt.Sprintf("%s/*json", dir))
+	searchDir := fmt.Sprintf("%s/*json", dir)
+	jsonFiles, err := filepath.Glob(searchDir)
 	if err != nil {
+		fmt.Println(err)
 		return skins
 	}
 
 	for _, fileName := range jsonFiles {
 		jsonFile, err := ioutil.ReadFile(fileName)
 		if err != nil {
+			fmt.Println(err)
 			continue
 		}
 		var s Skin
 		err = json.Unmarshal(jsonFile, &s.Params)
 		if err != nil {
+			fmt.Println(err)
 			continue
 		}
 
