@@ -104,7 +104,7 @@ func (c *CairoRenderer) placeText(text string, config TextConfig) {
 	te := c.surface.TextExtents(text)
 
 	if config.Align == "" || config.Align == "left" {
-		c.surface.MoveTo(config.Pos.X-te.Xbearing-te.Width, config.Pos.Y-te.Ybearing)
+		c.surface.MoveTo(config.Pos.X, config.Pos.Y)
 	} else if config.Align == "center" {
 		c.surface.MoveTo(config.Pos.X-te.Xbearing-te.Width/2, config.Pos.Y-te.Ybearing)
 	} else {
@@ -149,7 +149,7 @@ func (c *CairoRenderer) placeQStr(text qstr.QStr, config TextConfig, lightnessFl
 		}
 
 		c.surface.SetSourceRGB(cappedColor.R, cappedColor.G, cappedColor.B)
-		c.surface.MoveTo(x-te.Xbearing-te.Width, config.Pos.Y-te.Ybearing)
+		c.surface.MoveTo(x, config.Pos.Y)
 		c.surface.Save()
 		c.surface.ShowText(colorPart.Part)
 		c.surface.Restore()
@@ -255,7 +255,6 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	// Nick
 	s.placeQStr(pd.Nick, s.Params.NickConfig, 0.4, 1)
 
-	/*
 	// Game type labels along with Elos for those game types
 	for i, elo := range pd.Elos {
 		s.placeText(elo.GameType, s.Params.GameTypeConfig[i])
@@ -293,8 +292,8 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 	s.placeText(fmt.Sprintf("%d losses", pd.Losses), s.Params.LossConfig)
 
 	// Playing time
-	s.placeText(fmt.Sprintf("Playing Time: %c", pd.PlayingTimeString()), s.Params.PlayingTimeConfig)
-	*/
+	s.placeText(fmt.Sprintf("Playing Time: %s", pd.PlayingTimeString()), s.Params.PlayingTimeConfig)
+
 	s.surface.WriteToPNG(filename)
 	s.surface.Finish()
 
