@@ -275,6 +275,7 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 		// did we fill in the player information yet?
 		if !filled {
 			pd.Nick = qstr.QStr(nick)
+			pd.Nick = pd.Nick.Decode(qstr.XonoticDecodeKey)
 			pd.StrippedNick = strippedNick
 			filled = true
 		}
