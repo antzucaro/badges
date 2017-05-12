@@ -156,7 +156,7 @@ func (c *CairoRenderer) placeQStr(text qstr.QStr, config TextConfig, lightnessFl
 
 		// the starting point for the next part is the end of the last one
 		te := c.surface.TextExtents(colorPart.Part)
-		x += te.Width
+		x += te.Width + te.Xbearing
 	}
 }
 
