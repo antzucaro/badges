@@ -173,10 +173,10 @@ func (pp *PlayerDataFetcher) genPlayerDataStmt(playerID int) string {
    ROUND(pe.elo) elo,
    pr.rank,
    pr.max_rank,
-   SUM(win) wins,
-   SUM(loss) losses,
-   SUM(kills) kills,
-   SUM(deaths) deaths,
+   COALESCE(SUM(win), 0) wins,
+   COALESCE(SUM(loss), 0) losses,
+   COALESCE(SUM(kills), 0) kills,
+   COALESCE(SUM(deaths), 0) deaths,
    round(Sum(alivetime)/60) alivetime    
 FROM
    (SELECT
