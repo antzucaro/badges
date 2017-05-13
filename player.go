@@ -166,52 +166,27 @@ func (pp *PlayerDataFetcher) FindPlayers(delta int, limit int) ([]int, error) {
 // initPlayerDataStmt generates the SQL statement string used to fetch
 // the information used to populate PlayerData objects
 func (pp *PlayerDataFetcher) genPlayerDataStmt(playerID int) string {
-	query := `SELECT
+    query := `SELECT
    p.nick,
    p.stripped_nick,
-   UPPER(agg_stats.game_type_cd) game_type_cd,
-   ROUND(pe.elo) elo,
+   upper(pa.game_type_cd) game_type_cd,
+   round(pe.elo) elo,
    pr.rank,
    pr.max_rank,
-   COALESCE(SUM(win), 0) wins,
-   COALESCE(SUM(loss), 0) losses,
-   COALESCE(SUM(kills), 0) kills,
-   COALESCE(SUM(deaths), 0) deaths,
-   round(Sum(alivetime)/60) alivetime    
-FROM
-   (SELECT
-      pgs.player_id,
-      g.game_id,
-      g.game_type_cd,
-      CASE                      
-         WHEN g.winner = pgs.team THEN 1                      
-         WHEN pgs.scoreboardpos = 1 THEN 1                      
-         ELSE 0                    
-      END win,
-      CASE                      
-         WHEN g.winner = pgs.team THEN 0                      
-         WHEN pgs.scoreboardpos = 1 THEN 0                      
-         ELSE 1                    
-      END loss,
-      pgs.kills,
-      pgs.deaths,
-      extract(epoch 
-   from
-      pgs.alivetime) alivetime            
-   FROM
-      games g,
-      player_game_stats pgs             
-   WHERE
-      g.game_id = pgs.game_id             
-      AND pgs.player_id = %d
-      AND g.players @> ARRAY[%d]) agg_stats
+   pa.wins,
+   pa.losses,
+   pa.kills,
+   pa.deaths,
+   pa.alivetime
+FROM 
+   player_agg_stats_mv pa 
 JOIN
    players p 
-      on p.player_id = agg_stats.player_id            
+      on p.player_id = pa.player_id            
 JOIN
    player_elos pe 
-      on agg_stats.game_type_cd = pe.game_type_cd 
-      and pe.player_id = agg_stats.player_id            
+      on pa.game_type_cd = pe.game_type_cd 
+      and pe.player_id = pa.player_id            
 LEFT OUTER JOIN
    (
       select
@@ -233,18 +208,13 @@ LEFT OUTER JOIN
          and player_id = %d
       ) pr 
          on pr.game_type_cd = pe.game_type_cd            
-   GROUP BY
-      p.nick,
-      p.stripped_nick,
-      agg_stats.game_type_cd,
-      pe.elo,
-      pr.rank,
-      pr.max_rank            
-   ORDER BY
-      pe.elo desc NULLS LAST
-   LIMIT 3`
+WHERE
+   pa.player_id = %d
+ORDER BY
+   pe.elo desc NULLS LAST
+LIMIT 3`
 
-	return fmt.Sprintf(query, playerID, playerID, playerID)
+	return fmt.Sprintf(query, playerID, playerID)
 }
 
 // GetPlayerData retrieves player information for the given player_id
