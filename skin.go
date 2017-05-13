@@ -1,14 +1,14 @@
 package main
 
 import (
-	"path/filepath"
 	"encoding/json"
 	"fmt"
 	"github.com/antzucaro/qstr"
+	"github.com/ungerik/go-cairo"
 	"io/ioutil"
 	"math"
+	"path/filepath"
 	"strings"
-	"github.com/ungerik/go-cairo"
 )
 
 // Position is an (x,y) coordinate
@@ -76,7 +76,7 @@ type Renderer interface {
 
 // CairoRenderer is a Renderer that uses the cairo C library under the hood.
 type CairoRenderer struct {
-	surface   *cairo.Surface
+	surface *cairo.Surface
 }
 
 // setFont sets the font properties on a surface
@@ -162,8 +162,8 @@ func (c *CairoRenderer) placeQStr(text qstr.QStr, config TextConfig, lightnessFl
 
 // Skin represents the look and feel of a XonStat badge
 type Skin struct {
-	Name      string
-	Params    SkinParams
+	Name   string
+	Params SkinParams
 
 	// TODO: this is renderer specific - build this into the interface?
 	CairoRenderer
@@ -243,6 +243,7 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 			}
 			bgX += bgW
 		}
+		bg.Destroy()
 	}
 
 	// load the overlay
@@ -250,6 +251,7 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 		overlay, _ := cairo.NewSurfaceFromPNG(s.Params.Overlay)
 		s.surface.SetSourceSurface(overlay, 0.0, 0.0)
 		s.surface.Paint()
+		overlay.Destroy()
 	}
 
 	// Nick
@@ -296,7 +298,7 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 
 	s.surface.WriteToPNG(filename)
 	s.surface.Finish()
-
+	s.surface.Destroy()
 }
 
 // LoadSkins loads up skin parameters from JSON files in dir, then constructs Skins from them
