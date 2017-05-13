@@ -52,9 +52,13 @@ func main() {
 			fmt.Println(err)
 		}
 
-		fmt.Printf("Rendering images for player #%d\n", pid)
-		for name, skin := range skins {
-			skin.Render(pd, fmt.Sprintf("output/%s/%d.png", name, pid))
-		}
+        if len(pd.Nick) == 0 {
+            fmt.Printf("No data for player #%d!\n", pid)
+        } else {
+            fmt.Printf("Rendering images for player #%d\n", pid)
+            for name, skin := range skins {
+                skin.Render(pd, fmt.Sprintf("output/%s/%d.png", name, pid))
+            }
+        }
 	}
 }
