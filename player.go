@@ -129,7 +129,7 @@ func NewPlayerDataFetcher(connStr string) (*PlayerDataFetcher, error) {
 // limited to that amount.
 func (pp *PlayerDataFetcher) FindPlayers(delta int, limit int) ([]int, error) {
 	playersSQL := `SELECT distinct p.player_id 
-	FROM players p JOIN player_game_stats pgs on p.player_id = pgs.player_id
+	FROM players p JOIN player_agg_stats_mv pas on p.player_id = pas.player_id
     JOIN player_elos pe on p.player_id = pe.player_id
 	WHERE p.active_ind = true
 	AND p.player_id > 2
@@ -137,7 +137,7 @@ func (pp *PlayerDataFetcher) FindPlayers(delta int, limit int) ([]int, error) {
 
 	// constrain the time window if needed
 	if delta > 0 {
-		playersSQL += " AND pgs.create_dt > now() - interval '" + fmt.Sprintf("%d", delta) + " hours'"
+		playersSQL += " AND pas.create_dt > now() - interval '" + fmt.Sprintf("%d", delta) + " hours'"
 	}
 
 	// limit the number of players if needed
@@ -163,7 +163,7 @@ func (pp *PlayerDataFetcher) FindPlayers(delta int, limit int) ([]int, error) {
 	return pids, nil
 }
 
-// initPlayerDataStmt generates the SQL statement string used to fetch
+// genPlayerDataStmt generates the SQL statement string used to fetch
 // the information used to populate PlayerData objects
 func (pp *PlayerDataFetcher) genPlayerDataStmt(playerID int) string {
     query := `SELECT
@@ -274,7 +274,6 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 	pd.Ranks = ranks
 	pd.Kills = totalKills
 	pd.Deaths = totalDeaths
-	pd.Wins = totalWins
 	pd.Losses = totalLosses
 	pd.PlayingTime = time.Duration(totalAlivetime) * time.Minute
 
