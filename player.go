@@ -9,6 +9,9 @@ import (
 	"time"
 )
 
+const MAX_ELO_RECS = 3
+const MAX_RANK_RECS = 3
+
 // playerElo holds records coming from the player_elos table in stats
 type playerElo struct {
 	GameType string
@@ -212,7 +215,7 @@ WHERE
    pa.player_id = %d
 ORDER BY
    pe.elo desc NULLS LAST
-LIMIT 3`
+`
 
 	return fmt.Sprintf(query, playerID, playerID)
 }
@@ -233,8 +236,8 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 	var wins, losses, kills, deaths, alivetime int
 	var elo, rank, maxRank sql.NullInt64
 	var totalWins, totalLosses, totalKills, totalDeaths, totalAlivetime int
-	elos := make([]playerElo, 0, 5)
-	ranks := make([]playerRank, 0, 5)
+	elos := make([]playerElo, 0, MAX_ELO_RECS)
+	ranks := make([]playerRank, 0, MAX_RANK_RECS)
 
 	for rows.Next() {
 		err := rows.Scan(&nick, &strippedNick, &gameType, &elo, &rank, &maxRank, &wins, &losses, &kills, &deaths, &alivetime)
@@ -251,10 +254,10 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 		}
 
 		// elo and rank are outer joins, thus may be NULL
-		if elo.Valid {
+		if elo.Valid && len(elos) < MAX_ELO_RECS {
 			elos = append(elos, playerElo{GameType: gameType, Elo: elo.Int64})
 		}
-		if rank.Valid && maxRank.Valid {
+		if rank.Valid && maxRank.Valid && len(ranks) < MAX_RANK_RECS {
 			ranks = append(ranks, playerRank{GameType: gameType, Rank: rank.Int64, MaxRank: maxRank.Int64})
 		}
 
@@ -274,6 +277,7 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 	pd.Ranks = ranks
 	pd.Kills = totalKills
 	pd.Deaths = totalDeaths
+	pd.Wins = totalWins
 	pd.Losses = totalLosses
 	pd.PlayingTime = time.Duration(totalAlivetime) * time.Minute
 
