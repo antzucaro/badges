@@ -169,52 +169,64 @@ func (pp *PlayerDataFetcher) FindPlayers(delta int, limit int) ([]int, error) {
 // genPlayerDataStmt generates the SQL statement string used to fetch
 // the information used to populate PlayerData objects
 func (pp *PlayerDataFetcher) genPlayerDataStmt(playerID int) string {
-    query := `SELECT
-   p.nick,
-   p.stripped_nick,
-   upper(pa.game_type_cd) game_type_cd,
-   round(pe.elo) elo,
-   pr.rank,
-   pr.max_rank,
-   pa.wins,
-   pa.losses,
-   pa.kills,
-   pa.deaths,
-   pa.alivetime
-FROM 
-   player_agg_stats_mv pa 
+    query := `
+SELECT
+    p.nick,
+    p.stripped_nick,
+    upper(pe.game_type_cd) game_type_cd,
+    round(pe.elo) elo,
+    pr.rank,
+    pr.max_rank,
+    pa.wins,
+    pa.losses,
+    pa.kills,
+    pa.deaths,
+    pa.alivetime
+FROM
+    (SELECT
+        player_id,
+        sum(wins) wins,
+        sum(losses) losses,
+        sum(kills) kills,
+        sum(deaths) deaths,
+        sum(alivetime) alivetime
+    FROM
+        player_agg_stats_mv
+    WHERE
+        game_type_cd != 'cts'
+    GROUP BY
+        player_id) pa
 JOIN
-   players p 
-      on p.player_id = pa.player_id            
+    players p
+        on p.player_id = pa.player_id
 JOIN
-   player_elos pe 
-      on pa.game_type_cd = pe.game_type_cd 
-      and pe.player_id = pa.player_id            
+    player_elos pe
+        on pe.player_id = pa.player_id
 LEFT OUTER JOIN
-   (
-      select
-         pr.game_type_cd,
-         pr.rank,
-         overall.max_rank                   
-      from
-         player_ranks pr,
-         (select
+    (SELECT
+        pr.game_type_cd,
+        pr.rank,
+        overall.max_rank
+    FROM
+        player_ranks pr,
+        (SELECT
             game_type_cd,
-            max(rank) max_rank                       
-         from
-            player_ranks                        
-         group by
-            game_type_cd) overall                   
-      where
-         pr.game_type_cd = overall.game_type_cd                    
-         and max_rank > 1                   
-         and player_id = %d
-      ) pr 
-         on pr.game_type_cd = pe.game_type_cd            
+            max(rank) max_rank
+        FROM
+            player_ranks
+        GROUP BY
+            game_type_cd) overall
+    WHERE
+        pr.game_type_cd = overall.game_type_cd
+        and max_rank > 1
+        and player_id = %d
+    ) pr
+    on pr.game_type_cd = pe.game_type_cd
 WHERE
    pa.player_id = %d
 ORDER BY
    pe.elo desc NULLS LAST
+LIMIT 3;
 `
 
 	return fmt.Sprintf(query, playerID, playerID)
@@ -250,6 +262,11 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 			pd.Nick = qstr.QStr(nick)
 			pd.Nick = pd.Nick.Decode(qstr.XonoticDecodeKey)
 			pd.StrippedNick = strippedNick
+			totalWins = wins
+			totalLosses = losses
+			totalKills = kills
+			totalDeaths = deaths
+			totalAlivetime = alivetime
 			filled = true
 		}
 
@@ -260,12 +277,6 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 		if rank.Valid && maxRank.Valid && len(ranks) < MAX_RANK_RECS {
 			ranks = append(ranks, playerRank{GameType: gameType, Rank: rank.Int64, MaxRank: maxRank.Int64})
 		}
-
-		totalWins += wins
-		totalLosses += losses
-		totalKills += kills
-		totalDeaths += deaths
-		totalAlivetime += alivetime
 	}
 
 	err = rows.Err()
