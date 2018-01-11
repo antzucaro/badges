@@ -118,7 +118,7 @@
       "FontSize": 10,
       "Pos": {
         "X": 100,
-        "Y": 48
+        "Y": 53 
       },
       "Color": [
         {
@@ -138,7 +138,7 @@
       "FontSize": 10,
       "Pos": {
         "X": 195,
-        "Y": 48
+        "Y": 53 
       },
       "Color": [
         {
@@ -158,7 +158,7 @@
       "FontSize": 10,
       "Pos": {
         "X": 290,
-        "Y": 48
+        "Y": 53
       },
       "Color": [
         {
@@ -177,7 +177,7 @@
   "RankConfig": [
     {
       "Font": "Xolonium",
-      "FontSize": 8,
+      "FontSize": 0,
       "Pos": {
         "X": 100,
         "Y": 58
@@ -197,7 +197,7 @@
     },
     {
       "Font": "Xolonium",
-      "FontSize": 8,
+      "FontSize": 0,
       "Pos": {
         "X": 195,
         "Y": 58
@@ -217,7 +217,7 @@
     },
     {
       "Font": "Xolonium",
-      "FontSize": 8,
+      "FontSize": 0,
       "Pos": {
         "X": 290,
         "Y": 58
