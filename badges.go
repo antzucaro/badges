@@ -10,6 +10,27 @@ import (
 	"runtime/pprof"
 )
 
+func worker(pids <-chan int, pp *PlayerDataFetcher, skins map[string]Skin) {
+	// cairo surface cache
+	surfaceCache := make(map[string]*cairo.Surface)
+
+	for pid := range pids {
+		pd, err := pp.GetPlayerData(pid)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		if len(pd.Nick) == 0 {
+			fmt.Printf("No data for player #%d!\n", pid)
+		} else {
+			fmt.Printf("Rendering images for player #%d\n", pid)
+			for name, skin := range skins {
+				skin.Render(pd, fmt.Sprintf("output/%s/%d.png", name, pid), surfaceCache)
+			}
+		}
+	}
+}
+
 func main() {
 	all := flag.Bool("all", false, "Generate badges for all ranked players")
 	delta := flag.Int("delta", 6, "Generate for players having activity in this number of hours")
@@ -57,22 +78,15 @@ func main() {
 	pprof.StartCPUProfile(f)
 	defer pprof.StopCPUProfile()
 
-	// cairo surface cache
-	surfaceCache := make(map[string]*cairo.Surface)
+	pidsChan := make(chan int, 5)
 
+	// start workers
+	for w := 1; w <= 5; w++ {
+		go worker(pidsChan, pp, skins)
+	}
+
+	// send them work
 	for _, pid := range pids {
-		pd, err := pp.GetPlayerData(pid)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		if len(pd.Nick) == 0 {
-			fmt.Printf("No data for player #%d!\n", pid)
-		} else {
-			fmt.Printf("Rendering images for player #%d\n", pid)
-			for name, skin := range skins {
-				skin.Render(pd, fmt.Sprintf("output/%s/%d.png", name, pid), surfaceCache)
-			}
-		}
+		pidsChan <- pid
 	}
 }
