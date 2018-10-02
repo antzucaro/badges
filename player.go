@@ -60,9 +60,9 @@ func (pd *PlayerData) WinPct() float64 {
 // DurationString creates a human-readable duration string with a days component.
 func DurationString(d time.Duration) string {
 	minutes := uint64(d.Minutes())
-	days := uint64(minutes /1440)
+	days := uint64(minutes / 1440)
 	minutes -= days * 1440
-	hours := uint64(minutes /60)
+	hours := uint64(minutes / 60)
 	minutes -= hours * 60
 
 	var buffer bytes.Buffer
@@ -72,7 +72,7 @@ func DurationString(d time.Duration) string {
 		buffer.WriteString(fmt.Sprintf("%d days", days))
 	}
 
-	if hours >= 1 && days >=1 {
+	if hours >= 1 && days >= 1 {
 		buffer.WriteString(", ")
 	}
 
@@ -82,7 +82,7 @@ func DurationString(d time.Duration) string {
 		buffer.WriteString(fmt.Sprintf("%d hrs", hours))
 	}
 
-	if minutes >= 1 && hours >=1 {
+	if minutes >= 1 && hours >= 1 {
 		buffer.WriteString(", ")
 	}
 
@@ -169,7 +169,7 @@ func (pp *PlayerDataFetcher) FindPlayers(delta int, limit int) ([]int, error) {
 // genPlayerDataStmt generates the SQL statement string used to fetch
 // the information used to populate PlayerData objects
 func (pp *PlayerDataFetcher) genPlayerDataStmt(playerID int) string {
-    query := `
+	query := `
 SELECT
     p.nick,
     p.stripped_nick,
