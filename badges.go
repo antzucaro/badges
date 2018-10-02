@@ -7,7 +7,6 @@ import (
 	"github.com/ungerik/go-cairo"
 	"log"
 	"os"
-	"runtime/pprof"
 )
 
 func worker(pids <-chan int, pp *PlayerDataFetcher, skins map[string]Skin) {
@@ -23,7 +22,6 @@ func worker(pids <-chan int, pp *PlayerDataFetcher, skins map[string]Skin) {
 		if len(pd.Nick) == 0 {
 			fmt.Printf("No data for player #%d!\n", pid)
 		} else {
-			fmt.Printf("Rendering images for player #%d\n", pid)
 			for name, skin := range skins {
 				skin.Render(pd, fmt.Sprintf("output/%s/%d.png", name, pid), surfaceCache)
 			}
@@ -36,7 +34,7 @@ func main() {
 	delta := flag.Int("delta", 6, "Generate for players having activity in this number of hours")
 	pid := flag.Int("pid", -1, "Generate a badge for this player ID")
 	limit := flag.Int("limit", -1, "Only generate badges for this many players")
-	// verbose := flag.Bool("verbose", false, "Turn on verbose output and timings")
+	workers := flag.Int("workers", 5, "workers")
 	flag.Parse()
 
 	pp, err := NewPlayerDataFetcher(config.Config.ConnStr)
@@ -69,19 +67,10 @@ func main() {
 		}
 	}
 
-	// CPU profiling
-	f, err := os.Create("cpuprofile.dat")
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	pprof.StartCPUProfile(f)
-	defer pprof.StopCPUProfile()
-
-	pidsChan := make(chan int, 5)
+	pidsChan := make(chan int, *workers)
 
 	// start workers
-	for w := 1; w <= 5; w++ {
+	for w := 1; w <= *workers; w++ {
 		go worker(pidsChan, pp, skins)
 	}
 
