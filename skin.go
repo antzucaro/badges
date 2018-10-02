@@ -220,14 +220,27 @@ func (s *Skin) ShadeWinPct(winPct float64, hiColor, midColor, loColor *qstr.RGBC
 	return qstr.RGBColor{r, g, b}
 }
 
+func surfaceFromCache(filename string, cache map[string]*cairo.Surface) *cairo.Surface {
+	if surface, ok := cache[filename]; ok {
+		// found in cache, return it
+		return surface
+	}
+
+	// not found in cache, create it and store it in the cache
+	surface, _ := cairo.NewSurfaceFromPNG(filename)
+	cache[filename] = surface
+
+	return surface
+}
+
 // Render the provided PlayerData using this Skin
-func (s *Skin) Render(pd *PlayerData, filename string) {
+func (s *Skin) Render(pd *PlayerData, filename string, surfaceCache map[string]*cairo.Surface) {
 	// TODO: this is renderer specific - build this into the interface?
 	s.surface = cairo.NewSurface(cairo.FORMAT_ARGB32, s.Params.Width, s.Params.Height)
 
 	// load the background
 	if s.Params.Background != "" {
-		bg, _ := cairo.NewSurfaceFromPNG(s.Params.Background)
+		bg := surfaceFromCache(s.Params.Background, surfaceCache)
 
 		bgW := bg.GetWidth()
 		bgH := bg.GetHeight()
@@ -243,15 +256,13 @@ func (s *Skin) Render(pd *PlayerData, filename string) {
 			}
 			bgX += bgW
 		}
-		bg.Destroy()
 	}
 
 	// load the overlay
 	if s.Params.Overlay != "" {
-		overlay, _ := cairo.NewSurfaceFromPNG(s.Params.Overlay)
+		overlay := surfaceFromCache(s.Params.Overlay, surfaceCache)
 		s.surface.SetSourceSurface(overlay, 0.0, 0.0)
 		s.surface.Paint()
-		overlay.Destroy()
 	}
 
 	// Nick
