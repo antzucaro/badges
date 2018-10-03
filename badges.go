@@ -4,16 +4,36 @@ import (
 	"flag"
 	"fmt"
 	"github.com/antzucaro/badges/config"
+	"github.com/ungerik/go-cairo"
 	"log"
 	"os"
 )
+
+func renderWorker(pids <-chan int, pp *PlayerDataFetcher, skins map[string]Skin,
+	surfaceCache map[string]*cairo.Surface) {
+
+	for pid := range pids {
+		pd, err := pp.GetPlayerData(pid)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		if len(pd.Nick) == 0 {
+			fmt.Printf("No data for player #%d!\n", pid)
+		} else {
+			for name, skin := range skins {
+				skin.Render(pd, fmt.Sprintf("output/%s/%d.png", name, pid), surfaceCache)
+			}
+		}
+	}
+}
 
 func main() {
 	all := flag.Bool("all", false, "Generate badges for all ranked players")
 	delta := flag.Int("delta", 6, "Generate for players having activity in this number of hours")
 	pid := flag.Int("pid", -1, "Generate a badge for this player ID")
 	limit := flag.Int("limit", -1, "Only generate badges for this many players")
-	// verbose := flag.Bool("verbose", false, "Turn on verbose output and timings")
+	workers := flag.Int("workers", 5, "workers")
 	flag.Parse()
 
 	pp, err := NewPlayerDataFetcher(config.Config.ConnStr)
@@ -46,19 +66,17 @@ func main() {
 		}
 	}
 
-	for _, pid := range pids {
-		pd, err := pp.GetPlayerData(pid)
-		if err != nil {
-			fmt.Println(err)
-		}
+	surfaceCache := LoadSurfaces(skins)
 
-        if len(pd.Nick) == 0 {
-            fmt.Printf("No data for player #%d!\n", pid)
-        } else {
-            fmt.Printf("Rendering images for player #%d\n", pid)
-            for name, skin := range skins {
-                skin.Render(pd, fmt.Sprintf("output/%s/%d.png", name, pid))
-            }
-        }
+	pidsChan := make(chan int, *workers)
+
+	// start workers
+	for w := 1; w <= *workers; w++ {
+		go renderWorker(pidsChan, pp, skins, surfaceCache)
+	}
+
+	// send them work
+	for _, pid := range pids {
+		pidsChan <- pid
 	}
 }

@@ -221,38 +221,14 @@ func (s *Skin) ShadeWinPct(winPct float64, hiColor, midColor, loColor *qstr.RGBC
 }
 
 // Render the provided PlayerData using this Skin
-func (s *Skin) Render(pd *PlayerData, filename string) {
-	// TODO: this is renderer specific - build this into the interface?
+func (s *Skin) Render(pd *PlayerData, filename string, surfaceCache map[string]*cairo.Surface) {
+	// find the base surface for this skin (if not found, we've initialized things incorrectly)
+	baseSurface := surfaceCache[s.Name]
+
+	// paint that base onto a new surface
 	s.surface = cairo.NewSurface(cairo.FORMAT_ARGB32, s.Params.Width, s.Params.Height)
-
-	// load the background
-	if s.Params.Background != "" {
-		bg, _ := cairo.NewSurfaceFromPNG(s.Params.Background)
-
-		bgW := bg.GetWidth()
-		bgH := bg.GetHeight()
-
-		bgX := 0
-		bgY := 0
-		for bgX < s.Params.Width {
-			bgY = 0
-			for bgY < s.Params.Height {
-				s.surface.SetSourceSurface(bg, float64(bgX), float64(bgY))
-				s.surface.Paint()
-				bgY += bgH
-			}
-			bgX += bgW
-		}
-		bg.Destroy()
-	}
-
-	// load the overlay
-	if s.Params.Overlay != "" {
-		overlay, _ := cairo.NewSurfaceFromPNG(s.Params.Overlay)
-		s.surface.SetSourceSurface(overlay, 0.0, 0.0)
-		s.surface.Paint()
-		overlay.Destroy()
-	}
+	s.surface.SetSourceSurface(baseSurface, 0.0, 0.0)
+	s.surface.Paint()
 
 	// Nick
 	s.placeQStr(pd.Nick, s.Params.NickConfig, 0.4, 1)
@@ -334,4 +310,44 @@ func LoadSkins(dir string) map[string]Skin {
 	}
 
 	return skins
+}
+
+// LoadSurfaces constructs a map[skin name] -> *cairo.Surface for that name
+func LoadSurfaces(skins map[string]Skin) map[string]*cairo.Surface {
+	surfaceMap := make(map[string]*cairo.Surface)
+
+	for name, skin := range skins {
+		// the base surface
+		surface := cairo.NewSurface(cairo.FORMAT_ARGB32, skin.Params.Width, skin.Params.Height)
+
+		// load the background
+		if skin.Params.Background != "" {
+			bg, _ := cairo.NewSurfaceFromPNG(skin.Params.Background)
+
+			bgW := bg.GetWidth()
+			bgH := bg.GetHeight()
+
+			bgX := 0
+			bgY := 0
+			for bgX < skin.Params.Width {
+				bgY = 0
+				for bgY < skin.Params.Height {
+					surface.SetSourceSurface(bg, float64(bgX), float64(bgY))
+					surface.Paint()
+					bgY += bgH
+				}
+				bgX += bgW
+			}
+		}
+
+		// load the overlay
+		if skin.Params.Overlay != "" {
+			overlay, _ := cairo.NewSurfaceFromPNG(skin.Params.Overlay)
+			surface.SetSourceSurface(overlay, 0.0, 0.0)
+			surface.Paint()
+		}
+		surfaceMap[name] = surface
+	}
+
+	return surfaceMap
 }
