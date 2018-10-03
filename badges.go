@@ -9,9 +9,8 @@ import (
 	"os"
 )
 
-func worker(pids <-chan int, pp *PlayerDataFetcher, skins map[string]Skin) {
-	// cairo surface cache
-	surfaceCache := make(map[string]*cairo.Surface)
+func renderWorker(pids <-chan int, pp *PlayerDataFetcher, skins map[string]Skin,
+	surfaceCache map[string]*cairo.Surface) {
 
 	for pid := range pids {
 		pd, err := pp.GetPlayerData(pid)
@@ -67,11 +66,13 @@ func main() {
 		}
 	}
 
+	surfaceCache := LoadSurfaces(skins)
+
 	pidsChan := make(chan int, *workers)
 
 	// start workers
 	for w := 1; w <= *workers; w++ {
-		go worker(pidsChan, pp, skins)
+		go renderWorker(pidsChan, pp, skins, surfaceCache)
 	}
 
 	// send them work
