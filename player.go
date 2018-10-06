@@ -175,53 +175,20 @@ SELECT
     p.stripped_nick,
     upper(pe.game_type_cd) game_type_cd,
     round(pe.elo) elo,
-    pr.rank,
-    pr.max_rank,
     pa.wins,
     pa.losses,
     pa.kills,
     pa.deaths,
     pa.alivetime
 FROM
-    (SELECT
-        player_id,
-        sum(wins) wins,
-        sum(losses) losses,
-        sum(kills) kills,
-        sum(deaths) deaths,
-        sum(alivetime) alivetime
-    FROM
-        player_agg_stats_mv
-    WHERE
-        game_type_cd != 'cts'
-    GROUP BY
-        player_id) pa
+    player_agg_stats_mv pa
 JOIN
     players p
         on p.player_id = pa.player_id
 JOIN
     player_elos pe
         on pe.player_id = pa.player_id
-LEFT OUTER JOIN
-    (SELECT
-        pr.game_type_cd,
-        pr.rank,
-        overall.max_rank
-    FROM
-        player_ranks pr,
-        (SELECT
-            game_type_cd,
-            max(rank) max_rank
-        FROM
-            player_ranks
-        GROUP BY
-            game_type_cd) overall
-    WHERE
-        pr.game_type_cd = overall.game_type_cd
-        and max_rank > 1
-        and player_id = %d
-    ) pr
-    on pr.game_type_cd = pe.game_type_cd
+        and pe.game_type_cd = pa.game_type_cd
 WHERE
    pa.player_id = %d
 ORDER BY
@@ -229,7 +196,7 @@ ORDER BY
 LIMIT 3;
 `
 
-	return fmt.Sprintf(query, playerID, playerID)
+	return fmt.Sprintf(query, playerID)
 }
 
 // GetPlayerData retrieves player information for the given player_id
@@ -246,13 +213,15 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 	filled := false
 	var nick, strippedNick, gameType string
 	var wins, losses, kills, deaths, alivetime int
-	var elo, rank, maxRank sql.NullInt64
+	var elo sql.NullInt64
 	var totalWins, totalLosses, totalKills, totalDeaths, totalAlivetime int
 	elos := make([]playerElo, 0, MAX_ELO_RECS)
+
+	// Note: ranks no longer supported, so leave this empty
 	ranks := make([]playerRank, 0, MAX_RANK_RECS)
 
 	for rows.Next() {
-		err := rows.Scan(&nick, &strippedNick, &gameType, &elo, &rank, &maxRank, &wins, &losses, &kills, &deaths, &alivetime)
+		err := rows.Scan(&nick, &strippedNick, &gameType, &elo, &wins, &losses, &kills, &deaths, &alivetime)
 		if err != nil {
 			panic(err)
 		}
@@ -262,20 +231,21 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 			pd.Nick = qstr.QStr(nick)
 			pd.Nick = pd.Nick.Decode(qstr.XonoticDecodeKey)
 			pd.StrippedNick = strippedNick
-			totalWins = wins
-			totalLosses = losses
-			totalKills = kills
-			totalDeaths = deaths
-			totalAlivetime = alivetime
 			filled = true
 		}
+
+		// DM, CTS, and KA do not count towards win percentage
+		if gameType != "DM" && gameType != "CTS" && gameType != "KA" {
+			totalWins += wins
+			totalLosses += losses
+		}
+		totalKills += kills
+		totalDeaths += deaths
+		totalAlivetime += alivetime
 
 		// elo and rank are outer joins, thus may be NULL
 		if elo.Valid && len(elos) < MAX_ELO_RECS {
 			elos = append(elos, playerElo{GameType: gameType, Elo: elo.Int64})
-		}
-		if rank.Valid && maxRank.Valid && len(ranks) < MAX_RANK_RECS {
-			ranks = append(ranks, playerRank{GameType: gameType, Rank: rank.Int64, MaxRank: maxRank.Int64})
 		}
 	}
 

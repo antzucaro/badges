@@ -7,9 +7,10 @@ import (
 	"github.com/ungerik/go-cairo"
 	"log"
 	"os"
+	"sync"
 )
 
-func renderWorker(pids <-chan int, pp *PlayerDataFetcher, skins map[string]Skin,
+func renderWorker(pids <-chan int, wg *sync.WaitGroup, pp *PlayerDataFetcher, skins map[string]Skin,
 	surfaceCache map[string]*cairo.Surface) {
 
 	for pid := range pids {
@@ -26,6 +27,8 @@ func renderWorker(pids <-chan int, pp *PlayerDataFetcher, skins map[string]Skin,
 			}
 		}
 	}
+
+	wg.Done()
 }
 
 func main() {
@@ -68,15 +71,22 @@ func main() {
 
 	surfaceCache := LoadSurfaces(skins)
 
-	pidsChan := make(chan int, *workers)
+	pidsChan := make(chan int)
+
+	var wg sync.WaitGroup
 
 	// start workers
 	for w := 1; w <= *workers; w++ {
-		go renderWorker(pidsChan, pp, skins, surfaceCache)
+		wg.Add(1)
+		go renderWorker(pidsChan, &wg, pp, skins, surfaceCache)
 	}
 
 	// send them work
 	for _, pid := range pids {
 		pidsChan <- pid
 	}
+	close(pidsChan)
+
+	// wait until they are all done
+	wg.Wait()
 }
