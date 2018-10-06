@@ -181,25 +181,14 @@ SELECT
     pa.deaths,
     pa.alivetime
 FROM
-    (SELECT
-        player_id,
-        sum(wins) wins,
-        sum(losses) losses,
-        sum(kills) kills,
-        sum(deaths) deaths,
-        sum(alivetime) alivetime
-    FROM
-        player_agg_stats_mv
-    WHERE
-        game_type_cd != 'cts'
-    GROUP BY
-        player_id) pa
+    player_agg_stats_mv pa
 JOIN
     players p
         on p.player_id = pa.player_id
 JOIN
     player_elos pe
         on pe.player_id = pa.player_id
+        and pe.game_type_cd = pa.game_type_cd
 WHERE
    pa.player_id = %d
 ORDER BY
@@ -242,13 +231,17 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 			pd.Nick = qstr.QStr(nick)
 			pd.Nick = pd.Nick.Decode(qstr.XonoticDecodeKey)
 			pd.StrippedNick = strippedNick
-			totalWins = wins
-			totalLosses = losses
-			totalKills = kills
-			totalDeaths = deaths
-			totalAlivetime = alivetime
 			filled = true
 		}
+
+		// DM and CTS do not count towards win percentage
+		if gameType != "DM" && gameType != "CTS" {
+			totalWins += wins
+			totalLosses += losses
+		}
+		totalKills += kills
+		totalDeaths += deaths
+		totalAlivetime += alivetime
 
 		// elo and rank are outer joins, thus may be NULL
 		if elo.Valid && len(elos) < MAX_ELO_RECS {
