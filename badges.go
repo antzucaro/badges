@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func renderWorker(pids <-chan int, pp *PlayerDataFetcher, skins map[string]Skin,
+func renderWorker(pids <-chan int, done chan<- int, pp *PlayerDataFetcher, skins map[string]Skin,
 	surfaceCache map[string]*cairo.Surface) {
 
 	for pid := range pids {
@@ -26,6 +26,8 @@ func renderWorker(pids <-chan int, pp *PlayerDataFetcher, skins map[string]Skin,
 			}
 		}
 	}
+
+	done <- 0
 }
 
 func main() {
@@ -68,15 +70,22 @@ func main() {
 
 	surfaceCache := LoadSurfaces(skins)
 
-	pidsChan := make(chan int, *workers)
+	pidsChan := make(chan int)
+	doneChan := make(chan int, *workers)
 
 	// start workers
-	for w := 1; w <= *workers; w++ {
-		go renderWorker(pidsChan, pp, skins, surfaceCache)
+	for w := 0; w <= *workers; w++ {
+		go renderWorker(pidsChan, doneChan, pp, skins, surfaceCache)
 	}
 
 	// send them work
 	for _, pid := range pids {
 		pidsChan <- pid
+	}
+	close(pidsChan)
+
+	// wait until all of them are done
+	for i := 0; i <= *workers; i++ {
+		<-doneChan
 	}
 }
