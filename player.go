@@ -234,8 +234,8 @@ func (pp *PlayerDataFetcher) GetPlayerData(playerID int) (*PlayerData, error) {
 			filled = true
 		}
 
-		// DM and CTS do not count towards win percentage
-		if gameType != "DM" && gameType != "CTS" {
+		// DM, CTS, and KA do not count towards win percentage
+		if gameType != "DM" && gameType != "CTS" && gameType != "KA" {
 			totalWins += wins
 			totalLosses += losses
 		}
