@@ -5,10 +5,48 @@ import (
 	"fmt"
 	"github.com/antzucaro/badges/config"
 	"github.com/ungerik/go-cairo"
+	"image/jpeg"
+	"image/png"
 	"log"
 	"os"
+	"strings"
 	"sync"
 )
+
+// pngToJpg saves space by converting the given PNG into a JPG with the provided quality.
+func pngToJpg(pngFilename string, quality int) {
+	jpgFilename := strings.Replace(pngFilename, ".png", ".jpg", -1)
+
+	f, err := os.Open(pngFilename)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer f.Close()
+
+	image, err := png.Decode(f)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	outfile, err := os.Create(jpgFilename)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer outfile.Close()
+
+	opts := jpeg.Options{Quality: quality}
+
+	err = jpeg.Encode(outfile, image, &opts)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	os.Remove(pngFilename)
+}
 
 func renderWorker(pids <-chan int, wg *sync.WaitGroup, pp *PlayerDataFetcher, skins map[string]Skin,
 	surfaceCache map[string]*cairo.Surface) {
@@ -23,7 +61,9 @@ func renderWorker(pids <-chan int, wg *sync.WaitGroup, pp *PlayerDataFetcher, sk
 			fmt.Printf("No data for player #%d!\n", pid)
 		} else {
 			for name, skin := range skins {
-				skin.Render(pd, fmt.Sprintf("output/%s/%d.png", name, pid), surfaceCache)
+				pngFN := fmt.Sprintf("output/%s/%d.png", name, pid)
+				skin.Render(pd, pngFN, surfaceCache)
+				pngToJpg(pngFN, 90)
 			}
 		}
 	}
