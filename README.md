@@ -14,14 +14,14 @@ Find your player page on [XonStat][xonstat]. This is easiest to do after you've 
 
 Once you have your player ID, plug it into one of the following URLs:
 
-`https://stats.xonotic.org/static/badges/<PLAYER_ID>.png`
+`https://stats.xonotic.org/static/badges/<PLAYER_ID>.jpg`
 
-`https://stats.xonotic.org/static/badges/archer/<PLAYER_ID>.png`
+`https://stats.xonotic.org/static/badges/archer/<PLAYER_ID>.jpg`
 
-`https://stats.xonotic.org/static/badges/minimal/<PLAYER_ID>.png`
+`https://stats.xonotic.org/static/badges/minimal/<PLAYER_ID>.jpg`
 
 Each of the URLs displays the same basic information, but with different styling. Choose whichever one you like the best!
 
-[antibody badge]: https://stats.xonotic.org/static/badges/6.png
-[antibody badge 2]: http://stats.xonotic.org/static/badges/archer/6.png
+[antibody badge]: https://stats.xonotic.org/static/badges/6.jpg
+[antibody badge 2]: http://stats.xonotic.org/static/badges/archer/6.jpg
 [xonstat]: https://stats.xonotic.org
